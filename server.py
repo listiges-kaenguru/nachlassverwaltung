@@ -238,7 +238,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(HTTPStatus.BAD_REQUEST, {"fehler": "Die Datei ist kein gültiges Bild."})
         slot = re.sub(r"[^a-z0-9-]", "", query.get("slot", ["foto"])[0].lower())[:40] or "foto"
         name = f"{slot}_{datetime.now():%Y%m%d-%H%M%S}_{secrets.token_hex(3)}{endung}"
-        (BILDER / name).write_bytes(daten)
+        # "x": nie eine vorhandene Datei oder einen symbolischen Link überschreiben.
+        try:
+            with open(BILDER / name, "xb") as f:
+                f.write(daten)
+        except FileExistsError:
+            return self._json(HTTPStatus.CONFLICT, {"fehler": "Bitte das Foto noch einmal hinzufügen."})
         self._json(HTTPStatus.CREATED, {"src": f"bilder/{name}"})
 
 
