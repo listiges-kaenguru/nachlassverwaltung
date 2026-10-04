@@ -7,6 +7,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+### Behoben
+
+- Der Editor lädt jetzt auch unter Windows zuverlässig, wenn dort Dateitypen falsch registriert sind.
+
 ## [1.1.0] – 2026-10-04
 
 ### Hinzugefügt
