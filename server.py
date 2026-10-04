@@ -154,8 +154,9 @@ class Handler(BaseHTTPRequestHandler):
         name = unquote(name)
         if not DATEINAME.fullmatch(name):
             return self._senden(HTTPStatus.NOT_FOUND, b"Nicht gefunden")
-        datei = wurzel / name
-        if not datei.is_file():
+        # resolve() löst auch symbolische Links auf; die Datei muss direkt im Ordner liegen.
+        datei = (wurzel / name).resolve()
+        if datei.parent != wurzel.resolve() or not datei.is_file():
             return self._senden(HTTPStatus.NOT_FOUND, b"Nicht gefunden")
         typ = DATEI_TYPEN.get(datei.suffix.lower(), "application/octet-stream")
         self._senden(HTTPStatus.OK, datei.read_bytes(), typ)
@@ -237,7 +238,12 @@ class Handler(BaseHTTPRequestHandler):
             return self._json(HTTPStatus.BAD_REQUEST, {"fehler": "Die Datei ist kein gültiges Bild."})
         slot = re.sub(r"[^a-z0-9-]", "", query.get("slot", ["foto"])[0].lower())[:40] or "foto"
         name = f"{slot}_{datetime.now():%Y%m%d-%H%M%S}_{secrets.token_hex(3)}{endung}"
-        (BILDER / name).write_bytes(daten)
+        # "x": nie eine vorhandene Datei oder einen symbolischen Link überschreiben.
+        try:
+            with open(BILDER / name, "xb") as f:
+                f.write(daten)
+        except FileExistsError:
+            return self._json(HTTPStatus.CONFLICT, {"fehler": "Bitte das Foto noch einmal hinzufügen."})
         self._json(HTTPStatus.CREATED, {"src": f"bilder/{name}"})
 
 
