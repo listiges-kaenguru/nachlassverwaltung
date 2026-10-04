@@ -7,6 +7,8 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+## [1.1.2] – 2026-10-05
+
 ### Sicherheit
 
 - Fotos und Editor-Dateien werden nur noch aus ihrem eigenen Ordner ausgeliefert, auch wenn dort symbolische Links liegen.
@@ -46,7 +48,8 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 - Export als Einzeldatei mit eingebetteten Fotos und Druckansicht.
 - `start.sh` und `stop.sh` zum Starten und Stoppen im Hintergrund.
 
-[Unveröffentlicht]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.1...HEAD
+[Unveröffentlicht]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.2...HEAD
+[1.1.2]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/listiges-kaenguru/nachlassverwaltung/releases/tag/v1.0.0
