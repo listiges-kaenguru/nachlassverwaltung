@@ -154,8 +154,9 @@ class Handler(BaseHTTPRequestHandler):
         name = unquote(name)
         if not DATEINAME.fullmatch(name):
             return self._senden(HTTPStatus.NOT_FOUND, b"Nicht gefunden")
-        datei = wurzel / name
-        if not datei.is_file():
+        # resolve() löst auch symbolische Links auf; die Datei muss direkt im Ordner liegen.
+        datei = (wurzel / name).resolve()
+        if datei.parent != wurzel.resolve() or not datei.is_file():
             return self._senden(HTTPStatus.NOT_FOUND, b"Nicht gefunden")
         typ = DATEI_TYPEN.get(datei.suffix.lower(), "application/octet-stream")
         self._senden(HTTPStatus.OK, datei.read_bytes(), typ)

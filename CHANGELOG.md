@@ -7,6 +7,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+### Sicherheit
+
+- Fotos und Editor-Dateien werden nur noch aus ihrem eigenen Ordner ausgeliefert, auch wenn dort symbolische Links liegen.
+
 ## [1.1.1] – 2026-10-05
 
 ### Behoben
