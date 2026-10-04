@@ -207,7 +207,7 @@ class Handler(BaseHTTPRequestHandler):
                 or "<main" not in klein):
             return self._json(HTTPStatus.BAD_REQUEST,
                               {"fehler": "Das Dokument sieht unvollständig aus und wurde nicht gespeichert."})
-        if re.search(r"<[^>]*\sdata-editor[\s=>]", text):
+        if re.search(r"<[^<>]*\sdata-editor[\s=>]", text):
             return self._json(HTTPStatus.BAD_REQUEST,
                               {"fehler": "Im Dokument sind noch Editor-Bestandteile. Nicht gespeichert."})
         # Nur den Inhaltsbereich übernehmen. Kopf und Skripte kommen aus der Datei auf der Platte,
