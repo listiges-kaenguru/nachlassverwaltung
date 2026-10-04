@@ -10,6 +10,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 ### Sicherheit
 
 - Die Auswahl „Absatz …“ im Editor akzeptiert nur noch die vorgesehenen Formate (normaler Text, Überschrift, Unterüberschrift).
+### Behoben
+
+- Der Editor lädt jetzt auch unter Windows zuverlässig, wenn dort Dateitypen falsch registriert sind.
+- Ein gezielt präpariertes Dokument kann beim Speichern den Server nicht mehr lahmlegen.
 
 ## [1.1.0] – 2026-10-04
 

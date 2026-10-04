@@ -6,7 +6,6 @@ Start:  python3 server.py [--browser]   →   http://127.0.0.1:8484/
 """
 import base64
 import json
-import mimetypes
 import os
 import re
 import secrets
@@ -41,6 +40,14 @@ MAX_VERSIONEN = 200
 MAX_DOKUMENT = 20 * 1024 * 1024
 MAX_BILD = 15 * 1024 * 1024
 BILD_TYPEN = {"image/jpeg": ".jpg", "image/png": ".png", "image/webp": ".webp"}
+# Feste Zuordnung statt mimetypes: Unter Windows liefert die Registry z. B. für .js teils text/plain,
+# was der Browser wegen „nosniff“ dann nicht ausführt.
+DATEI_TYPEN = {
+    ".js": "text/javascript; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+    ".png": "image/png", ".webp": "image/webp", ".gif": "image/gif",
+}
 DATEINAME = re.compile(r"[A-Za-z0-9][A-Za-z0-9._-]*")
 
 # Wird nur beim Ausliefern eingefügt und vom Editor beim Speichern wieder entfernt.
@@ -150,9 +157,7 @@ class Handler(BaseHTTPRequestHandler):
         datei = wurzel / name
         if not datei.is_file():
             return self._senden(HTTPStatus.NOT_FOUND, b"Nicht gefunden")
-        typ = mimetypes.guess_type(name)[0] or "application/octet-stream"
-        if typ in ("text/javascript", "application/javascript", "text/css"):
-            typ += "; charset=utf-8"
+        typ = DATEI_TYPEN.get(datei.suffix.lower(), "application/octet-stream")
         self._senden(HTTPStatus.OK, datei.read_bytes(), typ)
 
     def _export(self):
@@ -161,9 +166,9 @@ class Handler(BaseHTTPRequestHandler):
 
         def einbetten(m):
             datei = BILDER / m.group(1)
-            if not datei.is_file():
+            typ = DATEI_TYPEN.get(datei.suffix.lower(), "")
+            if not typ.startswith("image/") or not datei.is_file():
                 return m.group(0)
-            typ = mimetypes.guess_type(datei.name)[0] or "image/jpeg"
             daten = base64.b64encode(datei.read_bytes()).decode("ascii")
             return f'src="data:{typ};base64,{daten}"'
 
@@ -202,7 +207,7 @@ class Handler(BaseHTTPRequestHandler):
                 or "<main" not in klein):
             return self._json(HTTPStatus.BAD_REQUEST,
                               {"fehler": "Das Dokument sieht unvollständig aus und wurde nicht gespeichert."})
-        if re.search(r"<[^>]*\sdata-editor[\s=>]", text):
+        if re.search(r"<[^<>]*\sdata-editor[\s=>]", text):
             return self._json(HTTPStatus.BAD_REQUEST,
                               {"fehler": "Im Dokument sind noch Editor-Bestandteile. Nicht gespeichert."})
         # Nur den Inhaltsbereich übernehmen. Kopf und Skripte kommen aus der Datei auf der Platte,
