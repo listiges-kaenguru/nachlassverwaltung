@@ -550,6 +550,7 @@
   }
 
   function absatzFormat(ziel) {
+    if (!['p', 'h3', 'h4'].includes(ziel)) return;
     const el = aktuellesElement();
     const block = el && el.closest('p, h3, h4');
     if (!block || !main.contains(block) || block.closest('li, td, th, nav')) {
