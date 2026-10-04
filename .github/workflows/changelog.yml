@@ -1,0 +1,29 @@
+name: Changelog
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  contents: read
+
+jobs:
+  changelog:
+    name: CHANGELOG.md aktualisiert
+    runs-on: ubuntu-latest
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'kein-changelog') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prüfen, ob CHANGELOG.md geändert wurde
+        env:
+          BASIS: ${{ github.event.pull_request.base.sha }}
+          KOPF: ${{ github.event.pull_request.head.sha }}
+        run: |
+          if git diff --name-only "$BASIS...$KOPF" | grep -qx 'CHANGELOG.md'; then
+            echo "CHANGELOG.md wurde aktualisiert."
+          else
+            echo "::error file=CHANGELOG.md::Bitte die Änderung in CHANGELOG.md unter '## [Unveröffentlicht]' eintragen (siehe CONTRIBUTING.md) oder das Label 'kein-changelog' setzen."
+            exit 1
+          fi

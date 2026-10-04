@@ -14,8 +14,11 @@ eigene Angaben ersetzen, nicht zutreffende Abschnitte löschen.
 
 - Python 3.8 oder neuer, **keine Zusatzpakete**
 - Ein aktueller Browser (Firefox, Chrome, Edge, Safari)
-- `start.sh` / `stop.sh` sind für Linux geschrieben. Unter macOS und Windows den Server direkt starten:
-  `python3 server.py --browser` (Windows: `py server.py --browser`), beenden mit `Strg+C`.
+- **Linux:** `start.sh` / `stop.sh`
+- **Windows:** `start.bat` / `stop.bat` (Doppelklick genügt). Python von [python.org](https://www.python.org/downloads/)
+  installieren und dabei „Add python.exe to PATH“ anhaken. *Noch nicht auf einem echten Windows-PC getestet –
+  Rückmeldungen sind willkommen.*
+- **macOS:** Server direkt starten mit `python3 server.py --browser`, beenden mit `Strg+C`.
 
 ## Einrichten
 
@@ -41,8 +44,11 @@ Oder auf GitHub über **Code → Download ZIP** herunterladen und entpacken.
 ./stop.sh    # beendet den Server
 ```
 
-Läuft der Server schon, öffnet `start.sh` nur den Browser. Meldungen landen in `server.log`.
-Im Vordergrund (Beenden mit `Strg+C`): `python3 server.py`. Anderer Port: `NACHLASS_PORT=8485 ./start.sh`.
+Unter Windows stattdessen `start.bat` und `stop.bat` doppelklicken (oder in PowerShell `.\start.ps1` / `.\stop.ps1`).
+
+Läuft der Server schon, öffnet das Startskript nur den Browser. Meldungen landen in `server.log`.
+Im Vordergrund (Beenden mit `Strg+C`): `python3 server.py`. Anderer Port: `NACHLASS_PORT=8485 ./start.sh`
+(Windows-Eingabeaufforderung: `set NACHLASS_PORT=8485`, dann `start.bat`).
 
 ## Bearbeiten
 
@@ -87,9 +93,11 @@ Im Vordergrund (Beenden mit `Strg+C`): `python3 server.py`. Anderer Port: `NACHL
 | `daten/bilder/` | Hochgeladene Fotos. Entfernte Fotos bleiben hier liegen, weil ältere Versionen sie noch verwenden. |
 | `daten/versionen/` | Vor jedem Speichern wird der vorherige Stand hier abgelegt (die letzten 200). |
 | `server.py` | Kleiner Webserver (nur Python-Standardbibliothek). |
-| `start.sh`, `stop.sh` | Starten und Stoppen. Der laufende Server steht in `server.pid`. |
+| `start.sh`, `stop.sh` | Starten und Stoppen unter Linux. Der laufende Server steht in `server.pid`. |
+| `start.bat`, `stop.bat` | Starten und Stoppen unter Windows. Rufen `start.ps1` bzw. `stop.ps1` auf. |
 | `server.log` | Protokoll des Servers. |
 | `CLAUDE.md` | Hinweise zum Aufbau für Entwickler und KI-Assistenten. |
+| `CHANGELOG.md` | Änderungen je Version. |
 | `editor/` | Bearbeitungsfunktionen. Werden nur beim Bearbeiten eingeblendet und nie ins Dokument gespeichert. |
 
 **Alten Stand wiederherstellen:** Server beenden, die gewünschte Datei aus `daten/versionen/` nach
@@ -107,11 +115,18 @@ Im Vordergrund (Beenden mit `Strg+C`): `python3 server.py`. Anderer Port: `NACHL
   `NACHLASS_ALLOWED_HOSTS=name.im.netz`) daher unbedingt einen Proxy mit Anmeldung davorschalten.
 - **Keine Passwörter ins Dokument schreiben.** Die gehören nur in den Passwortmanager und auf das handschriftliche Notfallblatt.
 
+## Entstehung
+
+Dieses Projekt ist per **Vibecoding** mit [Claude](https://claude.ai) (Anthropic) und Claude Code entstanden:
+Code, Weboberfläche und Dokumentation wurden im Dialog mit der KI geschrieben. Die Inhalte der Mappe wurden
+aus einer von mir erstellten Vorlage generiert und anschließend zu dieser leeren Vorlage verallgemeinert.
+
 ## Mitmachen
 
 Fehler, Ideen und Verbesserungen gern als Issue oder Pull Request. Bitte dabei nur Beispieldaten
-verwenden (`beispiel.de`, `192.168.178.x` …), niemals echte Angaben. Hinweise zum Aufbau des Codes
-stehen in [`CLAUDE.md`](CLAUDE.md).
+verwenden (`beispiel.de`, `192.168.178.x` …), niemals echte Angaben. Jede Änderung gehört in
+[`CHANGELOG.md`](CHANGELOG.md). Details stehen in [`CONTRIBUTING.md`](CONTRIBUTING.md), der Aufbau
+des Codes in [`CLAUDE.md`](CLAUDE.md).
 
 ## Haftungsausschluss
 

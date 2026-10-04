@@ -16,6 +16,7 @@ schreibt. Das Dokument `daten/Digitaler-Nachlass.html` ist eine **leere Vorlage*
 | `editor/editor.js`, `editor/editor.css` | Bearbeitungsoberfläche (Vanilla-JS, kein Build, keine Abhängigkeiten). |
 | `daten/Digitaler-Nachlass.html` | Das Dokument. Eigenständiges HTML mit eigenem CSS/JS, muss auch ohne Server lesbar und druckbar sein. |
 | `start.sh`, `stop.sh` | POSIX-sh-Skripte zum Starten/Stoppen im Hintergrund (`server.pid`, `server.log`). |
+| `start.ps1`, `stop.ps1` | Gegenstücke für Windows (PowerShell 5.1 und 7). `start.bat`/`stop.bat` rufen sie per Doppelklick auf. |
 
 Ablauf:
 1. `GET /` liest das Dokument und fügt vor `</head>` die Editor-Dateien ein (`<link/script data-editor>`).
@@ -39,6 +40,13 @@ Ablauf:
   erhalten. Kapitel-IDs (`k1`, `k4-3`, `ka` …) werden für Links und Seitenleiste genutzt – nicht umbenennen.
 - **Platzhalter** sind `<span class="fill">…</span>` (gelb). Offene Hinweise sind die gelben Kästen mit „erledigt ✓“.
 - Änderungen an Bedienung oder Dateien auch in `README.md` nachziehen.
+- **Start/Stopp-Skripte gemeinsam pflegen:** Änderungen an `start.sh`/`stop.sh` auch in `start.ps1`/`stop.ps1`
+  nachziehen und umgekehrt. `.ps1` als UTF-8 **mit BOM** und CRLF speichern (sonst zeigt Windows PowerShell 5.1
+  Umlaute falsch an), `.bat` nur ASCII. Zeilenenden regelt `.gitattributes`.
+- **Jede für Nutzende sichtbare Änderung in `CHANGELOG.md` eintragen**, und zwar im selben Commit unter
+  `## [Unveröffentlicht]` im passenden Unterabschnitt (`Hinzugefügt`, `Geändert`, `Behoben` …), ein Satz aus
+  Nutzersicht. Ausnahmen (Tippfehler, Formatierung, CI) und das Vorgehen bei Releases: `CONTRIBUTING.md`.
+  Eine GitHub-Action prüft das bei Pull Requests (Ausnahme per Label `kein-changelog`).
 
 ## Datenschutz – wichtig
 
