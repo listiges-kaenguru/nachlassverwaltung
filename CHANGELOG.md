@@ -7,6 +7,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+### Behoben
+
+- Ein gezielt präpariertes Dokument kann beim Speichern den Server nicht mehr lahmlegen.
+
 ## [1.1.0] – 2026-10-04
 
 ### Hinzugefügt
