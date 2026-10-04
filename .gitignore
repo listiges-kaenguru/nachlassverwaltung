@@ -1,0 +1,20 @@
+# Laufzeitdateien des Servers
+server.log
+server.pid
+daten/*.tmp
+__pycache__/
+
+# Persönliche Inhalte: hochgeladene Fotos und gesicherte Versionen
+daten/bilder/*
+daten/versionen/*
+!daten/bilder/.gitkeep
+!daten/versionen/.gitkeep
+
+# Heruntergeladene Einzeldateien
+Digitaler-Nachlass_*.html
+
+# Editor / Betriebssystem
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,102 @@
+/* Nachlassverwaltung – nur während der Bearbeitung eingeblendet */
+/* --ne-hoehe setzt editor.js, weil die Leiste bei schmalem Fenster mehrzeilig wird */
+html.ne-on { scroll-padding-top: calc(var(--ne-hoehe, 56px) + 16px); }
+html.ne-on body { padding-top: var(--ne-hoehe, 56px); }
+html.ne-on aside.sidenav { top: calc(var(--ne-hoehe, 56px) + 16px); max-height: calc(100vh - var(--ne-hoehe, 56px) - 32px); }
+
+#ne-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; flex-wrap: wrap; gap: 6px;
+  padding: 8px 14px; min-height: 48px;
+  background: #13202d; color: #fff;
+  font: 14px/1.2 "Segoe UI", "Noto Sans", Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .25);
+}
+#ne-bar .ne-brand { font-weight: 700; margin-right: 10px; letter-spacing: .02em; }
+#ne-bar .ne-label { color: #b9c4cf; font-size: 13px; }
+#ne-bar .ne-sep { width: 1px; height: 22px; background: #3b4d5f; margin: 0 4px; }
+#ne-bar .ne-spacer { flex: 1; }
+#ne-bar button {
+  font: inherit; padding: 5px 10px; border-radius: 6px; cursor: pointer;
+  border: 1px solid #3b4d5f; background: #22364a; color: #fff;
+}
+#ne-bar button:hover:not(:disabled) { background: #2c4760; }
+#ne-bar button:disabled { opacity: .35; cursor: default; }
+#ne-bar button.ne-aktiv { background: #f2c94c; border-color: #f2c94c; color: #13202d; }
+#ne-bar button code { background: transparent; color: inherit; padding: 0; font-size: 13px; }
+#ne-bar .ne-ui-probe { border: 1px solid #6b7c8d; border-radius: 4px; padding: 0 4px; font-weight: 600; }
+#ne-bar select {
+  font: inherit; padding: 5px 6px; border-radius: 6px; cursor: pointer;
+  border: 1px solid #3b4d5f; background: #22364a; color: #fff;
+}
+#ne-bar button.ne-primary { background: #2e7d3a; border-color: #2e7d3a; font-weight: 600; }
+#ne-bar button.ne-primary:hover { background: #379146; }
+#ne-bar .ne-ampel { padding: 5px 8px; font-weight: 700; }
+#ne-bar .ne-rot { color: #ff8a80; }
+#ne-bar .ne-gelb { color: #ffd166; }
+#ne-bar .ne-gruen { color: #9be7a5; }
+#ne-status { font-size: 13px; color: #9be7a5; margin-right: 6px; }
+#ne-status.ne-dirty { color: #ffd166; }
+#ne-status.ne-error { color: #ff8a80; font-weight: 700; }
+
+#ne-help {
+  position: fixed; top: calc(var(--ne-hoehe, 56px) + 4px); right: 14px; z-index: 1001; width: min(420px, calc(100vw - 28px));
+  max-height: calc(100vh - 80px); overflow: auto;
+  background: #fff; color: #1d232b; border: 1px solid #d6dbe1; border-radius: 10px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, .2); padding: 14px 18px; font-size: 14px;
+}
+#ne-help[hidden] { display: none; }
+#ne-help h3 { margin: 0 0 8px; font-size: 16px; }
+#ne-help li { margin: 6px 0; }
+
+/* Bearbeitbarer Bereich */
+html.ne-on main:focus { outline: none; }
+html.ne-on .fill { cursor: text; }
+html.ne-on .fill:hover { outline: 2px solid #c9b200; outline-offset: 1px; }
+
+/* Offene Hinweise */
+.ne-todo-x {
+  float: right; margin: -2px -4px 4px 10px; padding: 2px 8px; cursor: pointer;
+  font: 600 12px "Segoe UI", Arial, sans-serif; color: #276130;
+  background: #e5f2e6; border: 1px solid #276130; border-radius: 999px;
+}
+
+/* Fotobereiche */
+html.ne-on .fotos {
+  display: grid !important; min-height: 80px; padding: 10px;
+  border: 2px dashed #b9c1ca; border-radius: 10px;
+}
+html.ne-on .fotos.ne-drop { border-color: #1f5f8b; background: #e9f1f8; }
+.ne-slot-titel { grid-column: 1 / -1; font: 600 13px "Segoe UI", Arial, sans-serif; color: #5b6571; }
+
+/* Gerätefotos: im Editor immer alle Geräte zeigen */
+html.ne-on .geraetefotos, html.ne-on .geraet { display: block !important; }
+html.ne-on .geraet .fotos { padding: 6px; min-height: 0; }
+html.ne-on .geraet .ne-add { min-height: 70px; }
+.ne-add {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  min-height: 120px; border-radius: 8px; background: #f4f6f8; color: #1f5f8b; cursor: pointer;
+  font: 600 14px "Segoe UI", Arial, sans-serif; user-select: none; text-align: center; padding: 8px;
+}
+.ne-add:hover { background: #e9f1f8; }
+.ne-add small { font-weight: 400; color: #5b6571; }
+html.ne-on figure.foto { position: relative; }
+html.ne-on figure.foto figcaption { min-height: 1.4em; border-bottom: 1px dashed #d6dbe1; outline: none; display: block; }
+html.ne-on figure.foto figcaption:empty::before { content: "Bildunterschrift eingeben …"; color: #9aa3ad; font-style: italic; }
+.ne-figtools { position: absolute; top: 10px; right: 10px; display: flex; gap: 4px; opacity: 0; transition: opacity .15s; }
+figure.foto:hover .ne-figtools, figure.foto:focus-within .ne-figtools { opacity: 1; }
+.ne-figtools button {
+  width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer;
+  background: rgba(19, 32, 45, .82); color: #fff; font-size: 13px;
+}
+.ne-figtools button:hover { background: #a8231b; }
+
+@media print {
+  #ne-bar, #ne-help, [data-editor] { display: none !important; }
+  html.ne-on body { padding-top: 0; }
+  html.ne-on .fotos { border: 0; padding: 0; min-height: 0; }
+  html.ne-on .fotos:not(:has(figure)) { display: none !important; }
+  html.ne-on .geraet:not(:has(figure)), html.ne-on .geraetefotos:not(:has(figure)) { display: none !important; }
+  html.ne-on figure.foto figcaption { border: 0; }
+  html.ne-on figure.foto figcaption:empty { display: none; }
+}

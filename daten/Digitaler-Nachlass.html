@@ -1,0 +1,1256 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Digitaler Nachlass</title>
+<style>
+  :root {
+    --ink: #1d232b;
+    --muted: #5b6571;
+    --line: #d6dbe1;
+    --bg: #f6f5f1;
+    --paper: #ffffff;
+    --accent: #1f5f8b;
+    --accent-bg: #e9f1f8;
+    --rot: #a8231b;      --rot-bg: #fbe9e7;
+    --gelb: #7f5300;     --gelb-bg: #fff3d1;
+    --gruen: #276130;    --gruen-bg: #e5f2e6;
+    --todo: #fff6bf;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font: 16px/1.6 "Segoe UI", "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  }
+  .layout { display: flex; gap: 32px; max-width: 1240px; margin: 0 auto; padding: 24px 16px 80px; }
+  aside.sidenav { position: sticky; top: 16px; align-self: flex-start; width: 270px; flex: none;
+    max-height: calc(100vh - 32px); overflow: auto; font-size: 14px; }
+  aside.sidenav ol { list-style: none; padding: 0; margin: 0; }
+  aside.sidenav ol ol { padding-left: 14px; display: none; }
+  aside.sidenav a { display: block; padding: 3px 8px; border-radius: 6px; color: var(--muted); text-decoration: none; }
+  aside.sidenav a:hover { background: var(--accent-bg); color: var(--accent); }
+  aside.sidenav .actions { display: flex; gap: 8px; margin-bottom: 14px; }
+  main { flex: 1; min-width: 0; background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 40px 48px; }
+  @media (max-width: 960px) {
+    aside.sidenav { display: none; }
+    main { padding: 24px 16px; }
+  }
+
+  button.btn { font: inherit; font-size: 14px; padding: 6px 12px; border: 1px solid var(--accent); background: var(--accent);
+    color: #fff; border-radius: 6px; cursor: pointer; }
+  button.btn.ghost { background: transparent; color: var(--accent); }
+
+  h1, h2, h3, h4 { line-height: 1.25; color: #13202d; }
+  h2.chapter { font-size: 1.7em; margin: 2.2em 0 .6em; padding-bottom: .3em; border-bottom: 3px solid var(--accent); }
+  h2.chapter .num { color: var(--accent); margin-right: .35em; }
+  h3 { font-size: 1.25em; margin: 1.8em 0 .5em; }
+  h4 { font-size: 1.05em; margin: 1.4em 0 .4em; }
+  p, ul, ol { margin: .5em 0 .9em; }
+  a { color: var(--accent); }
+  code, .mono { font-family: "JetBrains Mono", "DejaVu Sans Mono", Consolas, monospace; font-size: .9em; }
+  code { background: #f0f2f4; padding: 1px 5px; border-radius: 4px; word-break: break-all; }
+  pre { background: #f0f2f4; padding: 12px 14px; border-radius: 6px; overflow-x: auto; font-size: .85em; }
+  hr { border: 0; border-top: 1px solid var(--line); margin: 2em 0; }
+
+  /* Deckblatt */
+  .cover { text-align: center; padding: 60px 0 40px; }
+  .cover .kicker { letter-spacing: .2em; text-transform: uppercase; color: var(--muted); font-size: .85em; }
+  .cover h1 { font-size: 2.6em; margin: .3em 0 .2em; }
+  .cover .sub { font-size: 1.2em; color: var(--muted); }
+  .cover dl { display: inline-grid; grid-template-columns: auto auto; gap: 6px 18px; text-align: left; margin-top: 40px;
+    border: 1px solid var(--line); border-radius: 8px; padding: 18px 24px; }
+  .cover dt { color: var(--muted); }
+  .cover dd { margin: 0; font-weight: 600; }
+  .cover .warn { margin: 40px auto 0; max-width: 560px; }
+
+  /* Inhaltsverzeichnis */
+  nav#toc ol { counter-reset: none; padding-left: 0; list-style: none; }
+  nav#toc > ol > li { margin: .45em 0; font-weight: 600; }
+  nav#toc ol ol { font-weight: 400; padding-left: 2.2em; margin: .2em 0 .4em; columns: 2; column-gap: 2em; }
+  nav#toc ol ol li { break-inside: avoid; }
+  nav#toc a { text-decoration: none; color: var(--ink); }
+  nav#toc a:hover { color: var(--accent); }
+  nav#toc .n { display: inline-block; min-width: 2.2em; color: var(--accent); }
+
+  /* Kästen */
+  .box { border-left: 5px solid var(--accent); background: var(--accent-bg); padding: 12px 16px; border-radius: 0 8px 8px 0; margin: 1em 0; }
+  .box > :first-child { margin-top: 0; }
+  .box > :last-child { margin-bottom: 0; }
+  .box.rot   { border-color: var(--rot);   background: var(--rot-bg); }
+  .box.gelb  { border-color: #c98a00;      background: var(--gelb-bg); }
+  .box.gruen { border-color: var(--gruen); background: var(--gruen-bg); }
+  .box .title { font-weight: 700; display: block; margin-bottom: .3em; }
+
+  /* Ampel-Labels: Farbe + Text, damit es auch schwarz-weiß gedruckt lesbar bleibt */
+  .tag { display: inline-block; font-size: .78em; font-weight: 700; padding: 1px 8px; border-radius: 999px; white-space: nowrap;
+    border: 1px solid currentColor; vertical-align: 1px; }
+  .tag.rot   { color: var(--rot);   background: var(--rot-bg); }
+  .tag.gelb  { color: var(--gelb);  background: var(--gelb-bg); }
+  .tag.gruen { color: var(--gruen); background: var(--gruen-bg); }
+  .tag.rot::before   { content: "● "; }
+  .tag.gelb::before  { content: "◆ "; }
+  .tag.gruen::before { content: "○ "; }
+
+  /* Tabellen */
+  .tablewrap { overflow-x: auto; margin: 1em 0; }
+  table { border-collapse: collapse; width: 100%; font-size: .92em; }
+  th, td { border: 1px solid var(--line); padding: 7px 9px; text-align: left; vertical-align: top; }
+  th { background: #eef1f4; font-weight: 600; }
+  tbody tr:nth-child(even) td { background: #fafbfc; }
+  table.kv th { width: 30%; background: #f5f7f9; }
+
+  /* Schritt-für-Schritt-Anleitungen */
+  ol.steps { list-style: none; counter-reset: step; padding-left: 0; }
+  ol.steps > li { counter-increment: step; position: relative; padding: 2px 0 12px 48px; min-height: 36px; }
+  ol.steps > li::before { content: counter(step); position: absolute; left: 0; top: 0; width: 32px; height: 32px; border-radius: 50%;
+    background: var(--accent); color: #fff; font-weight: 700; display: grid; place-items: center; }
+  .ui { font-weight: 600; background: #eef1f4; border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; white-space: nowrap; }
+
+  /* Checklisten */
+  ul.check { list-style: none; padding-left: 0; }
+  ul.check li { position: relative; padding-left: 30px; margin: .4em 0; }
+  ul.check li::before { content: ""; position: absolute; left: 0; top: .25em; width: 16px; height: 16px; border: 2px solid var(--ink); border-radius: 3px; }
+
+  /* Platzhalter zum Ausfüllen */
+  .fill { display: inline-block; min-width: 9em; border-bottom: 1.5px dotted #8a8f96; background: var(--todo); color: #6b5b00;
+    padding: 0 4px; font-style: italic; }
+  .fill.long { min-width: 18em; }
+  .todo { background: var(--todo); border: 1px dashed #c9b200; padding: 8px 12px; border-radius: 6px; font-size: .92em; }
+  .todo::before { content: "✎ Noch auszufüllen: "; font-weight: 700; }
+
+  /* Abhängigkeitskette */
+  .chain { display: flex; flex-wrap: wrap; align-items: stretch; gap: 6px; margin: 1em 0; }
+  .chain .node { flex: 1 1 140px; border: 1.5px solid var(--accent); border-radius: 8px; padding: 8px 10px; font-size: .88em; background: #fff; }
+  .chain .node b { display: block; color: var(--accent); }
+  .chain .arrow { align-self: center; font-size: 1.4em; color: var(--muted); }
+
+  /* Netzwerkplan */
+  figure { margin: 1.2em 0; }
+  figure svg { width: 100%; height: auto; display: block; }
+  figcaption { font-size: .85em; color: var(--muted); margin-top: .4em; }
+
+  /* Zugangsdaten-Blatt */
+  .credsheet table td { height: 2.3em; }
+  .credsheet table td:first-child { width: 24%; font-weight: 600; }
+  .credsheet .hint { font-weight: 400; font-size: .85em; color: var(--muted); display: block; }
+
+  .muted { color: var(--muted); }
+  .small { font-size: .88em; }
+  .signature { margin-top: 2em; font-style: italic; }
+
+  /* Fotos */
+  .fotos { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 1em 0; }
+  .fotos:empty { display: none; }
+  figure.foto { margin: 0; padding: 6px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+  figure.foto img { display: block; width: 100%; height: 220px; object-fit: contain; background: #f4f5f7; border-radius: 4px; }
+  figure.foto figcaption { font-size: .85em; color: var(--muted); margin-top: 5px; }
+  figure.foto figcaption:empty { display: none; }
+  .geraete-raster { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin: .6em 0 1.2em; }
+  .geraet { border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+  .geraet-name { font-weight: 600; }
+  .geraet-name span { font-weight: 400; color: var(--muted); font-size: .85em; margin-left: .4em; }
+  .geraet .fotos { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); margin: .4em 0 0; }
+  .geraet figure.foto img { height: 160px; }
+  .geraet:has(.fotos:empty) { display: none; }
+  .geraetefotos:not(:has(figure)) { display: none; }
+
+  /* ---------- Druck ---------- */
+  @page {
+    size: A4;
+    margin: 18mm 15mm 20mm 15mm;
+    @bottom-left  { content: "Digitaler Nachlass"; font-size: 8pt; color: #777; }
+    @bottom-right { content: "Seite " counter(page) " / " counter(pages); font-size: 8pt; color: #777; }
+  }
+  @page :first { @bottom-left { content: none; } @bottom-right { content: none; } }
+  @media print {
+    body { background: #fff; font-size: 10.5pt; line-height: 1.45; }
+    .layout { display: block; padding: 0; max-width: none; }
+    aside.sidenav, .no-print { display: none !important; }
+    main { border: 0; padding: 0; border-radius: 0; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .cover { min-height: 245mm; display: flex; flex-direction: column; justify-content: center; padding: 0; }
+    nav#toc, h2.chapter, .pagebreak { break-before: page; }
+    h2.chapter { margin-top: 0; }
+    h2, h3, h4 { break-after: avoid; }
+    table, .box, figure, .chain, ol.steps > li, ul.check li, .todo { break-inside: avoid; }
+    tr { break-inside: avoid; }
+    figure.foto { break-inside: avoid; }
+    figure.foto img { height: 55mm; }
+    .geraet { break-inside: avoid; }
+    .geraet figure.foto img { height: 40mm; }
+    a { color: inherit; text-decoration: none; }
+    .tablewrap { overflow: visible; }
+    .fill { background: transparent; color: #999; }
+    .todo { background: transparent; }
+  }
+</style>
+</head>
+<body>
+<div class="layout">
+
+<aside class="sidenav no-print" aria-label="Inhalt">
+  <div class="actions">
+    <button class="btn" onclick="window.print()">Drucken</button>
+    <button class="btn ghost" onclick="window.scrollTo(0,0)">Nach oben</button>
+  </div>
+  <div id="sidenav-list"></div>
+</aside>
+
+<main>
+
+<!-- ===================================================== DECKBLATT -->
+<section class="cover">
+  <div class="kicker">Notfallmappe</div>
+  <h1>Digitaler Nachlass</h1>
+  <div class="sub"><span class="fill">Vorname Nachname</span> · <span class="fill">Straße Nr., PLZ Ort</span></div>
+  <dl>
+    <dt>Für</dt>                 <dd><span class="fill">Namen der Hinterbliebenen</span></dd>
+    <dt>Stand</dt>               <dd id="stand-datum"><span class="fill">TT.MM.JJJJ</span></dd>
+    <dt>Version</dt>             <dd><span class="fill">1.0</span></dd>
+    <dt>Ausdruck liegt in</dt>   <dd><span class="fill">z. B. Ordner „Notfall“, Arbeitszimmer</span></dd>
+    <dt>Digitale Fassung</dt>    <dd><span class="fill">z. B. Cloud-Speicher / USB-Stick im Tresor</span></dd>
+  </dl>
+  <div class="box gelb warn">
+    <span class="title">Wichtig</span>
+    Dieses Dokument enthält <b>keine Passwörter</b>. Die Passwörter stehen im <b>Passwortmanager</b>
+    (Kapitel 4) und auf dem separat verschlossenen Blatt „Notfall-Zugangsdaten“ (Kapitel 15).
+  </div>
+</section>
+
+<!-- ===================================================== INHALT -->
+<nav id="toc" aria-label="Inhaltsverzeichnis">
+  <h2>Inhaltsverzeichnis</h2>
+  <ol>
+    <li><a href="#k1"><span class="n">1</span>Bitte zuerst lesen</a></li>
+    <li><a href="#k2"><span class="n">2</span>Checkliste: Die ersten Tage und Wochen</a></li>
+    <li><a href="#k3"><span class="n">3</span>Ansprechpartner und Helfer</a></li>
+    <li><a href="#k4"><span class="n">4</span>Passwörter: Passwortmanager und Notfallzugriff</a>
+      <ol>
+        <li><a href="#k4-1">4.1 Was ist ein Passwortmanager?</a></li>
+        <li><a href="#k4-2">4.2 Was muss funktionieren?</a></li>
+        <li><a href="#k4-3">4.3 Notfallzugriff anfordern</a></li>
+        <li><a href="#k4-4">4.4 Konto übernehmen</a></li>
+        <li><a href="#k4-5">4.5 Wenn es nicht klappt</a></li>
+        <li><a href="#k4-6">4.6 Zwei-Faktor-Codes</a></li>
+      </ol>
+    </li>
+    <li><a href="#k5"><span class="n">5</span>Laufende Kosten auf einen Blick</a></li>
+    <li><a href="#k6"><span class="n">6</span>Domains und E-Mail</a>
+      <ol>
+        <li><a href="#k6-1">6.1 Kurz erklärt</a></li>
+        <li><a href="#k6-2">6.2 Vertrag beim Anbieter</a></li>
+        <li><a href="#k6-3">6.3 Die Domains</a></li>
+        <li><a href="#k6-4">6.4 Die Postfächer</a></li>
+        <li><a href="#k6-5">6.5 Anleitung: Mails lesen</a></li>
+        <li><a href="#k6-6">6.6 Anleitung: Tarif verkleinern</a></li>
+      </ol>
+    </li>
+    <li><a href="#k7"><span class="n">7</span>Heimnetz: Internet, WLAN und Geräte</a>
+      <ol>
+        <li><a href="#k7-1">7.1 Übersicht</a></li>
+        <li><a href="#k7-2">7.2 Welches Gerät steht wo?</a></li>
+        <li><a href="#k7-3">7.3 WLAN</a></li>
+        <li><a href="#k7-4">7.4 Router und Repeater</a></li>
+        <li><a href="#k7-5">7.5 DNS-Filter</a></li>
+        <li><a href="#k7-6">7.6 Außenbereich, Tore und PV-Anlage</a></li>
+      </ol>
+    </li>
+    <li><a href="#k8"><span class="n">8</span>Hilfe! Häufige Probleme lösen</a></li>
+    <li><a href="#k9"><span class="n">9</span>Server und eigene Dienste</a>
+      <ol>
+        <li><a href="#k9-1">9.1 Der Server</a></li>
+        <li><a href="#k9-2">9.2 Die Dienste im Überblick</a></li>
+        <li><a href="#k9-3">9.3 Zugang von außen</a></li>
+        <li><a href="#k9-4">9.4 NAS</a></li>
+        <li><a href="#k9-5">9.5 Smarthome</a></li>
+        <li><a href="#k9-6">9.6 Sonstige Geräte</a></li>
+      </ol>
+    </li>
+    <li><a href="#k10"><span class="n">10</span>Daten retten: Fotos, Dokumente, Passwörter</a>
+      <ol>
+        <li><a href="#k10-cloud">Cloud-Speicher</a></li>
+        <li><a href="#k10-pw">10.1 Passwörter sichern</a></li>
+        <li><a href="#k10-docs">10.2 Dokumente sichern</a></li>
+        <li><a href="#k10-photos">10.3 Fotos sichern</a></li>
+      </ol>
+    </li>
+    <li><a href="#k11"><span class="n">11</span>Ausstiegsplan: Technik geordnet verkleinern</a></li>
+    <li><a href="#k12"><span class="n">12</span>Persönliche Geräte</a></li>
+    <li><a href="#k13"><span class="n">13</span>Online-Konten und Abonnements</a></li>
+    <li><a href="#k14"><span class="n">14</span>Finanzen und Online-Banking</a></li>
+    <li><a href="#k15"><span class="n">15</span>Notfall-Zugangsdaten (Blatt zum Ausfüllen)</a></li>
+    <li><a href="#ka"><span class="n">A</span>Anhang: Technische Details für IT-Helfer</a></li>
+    <li><a href="#kb"><span class="n">B</span>Anhang: Pflege dieser Mappe</a></li>
+  </ol>
+
+  <h3>So ist diese Mappe aufgebaut</h3>
+  <p>Jeder Dienst und jedes Gerät hat eine Markierung, damit man schnell weiß, was zu tun ist:</p>
+  <div class="tablewrap"><table>
+    <tr><td><span class="tag rot">Nicht abschalten</span></td><td>Weiterlaufen lassen und weiter bezahlen. Abschalten oder Kündigen würde etwas Wichtiges kaputtmachen.</td></tr>
+    <tr><td><span class="tag gelb">In Ruhe entscheiden</span></td><td>Nicht dringend. Kann weg, aber erst wenn die genannten Schritte erledigt sind.</td></tr>
+    <tr><td><span class="tag gruen">Kann weg</span></td><td>Kann ohne Bedenken gekündigt, gelöscht oder ausgeschaltet werden.</td></tr>
+  </table></div>
+  <p>Kapitel 1 bis 8 sind für alle verständlich geschrieben. Kapitel 9, 11 und Anhang A
+     sind eher für eine technisch versierte Hilfsperson gedacht.</p>
+  <div class="todo">Gelb hinterlegte Felder und Beispieltexte durch die eigenen Angaben ersetzen. Nicht zutreffende Abschnitte löschen.</div>
+</nav>
+
+<!-- ===================================================== 1 -->
+<h2 class="chapter" id="k1"><span class="num">1</span>Bitte zuerst lesen</h2>
+
+<p>Liebe/r <span class="fill">Name</span>,</p>
+<p>hier findest du alles Wichtige, wenn mir etwas zustoßen sollte und ich mich nicht mehr selbst um unsere Technik
+   kümmern kann. Ich habe versucht, alles so zu erklären, dass du es Schritt für Schritt erledigen kannst.
+   Vieles davon musst du gar nicht anfassen, denn die Technik ist so eingerichtet, dass sie ohne Pflege weiterläuft,
+   <b>solange die Rechnungen bezahlt werden</b>.</p>
+<p>Lass dir Zeit. Nichts davon muss in den ersten Tagen erledigt werden, außer den wenigen Punkten in Kapitel 2.</p>
+<p class="signature"><span class="fill">Gruß, Name</span></p>
+<p><span class="fill long">Platz für eine persönliche Nachricht</span></p>
+
+<h3>Die fünf wichtigsten Regeln</h3>
+<div class="box rot">
+  <ol>
+    <li><b>Nichts überstürzt kündigen oder löschen.</b> Besonders nicht eigene Domains und E-Mail-Adressen.
+        Wer eine gelöschte Adresse neu registriert, kann damit Passwörter zurücksetzen. Das ist ein Einfallstor für Identitätsbetrug.</li>
+    <li><b>Geräte im <span class="fill">Technikraum / Serverschrank</span> nicht ausschalten.</b> Sonst funktionieren Internet, Passwortmanager und Dokumente nicht mehr.</li>
+    <li><b>Mein Handy nicht zurücksetzen, nicht verkaufen und geladen halten.</b> Darauf laufen Anmeldebestätigungen (Authenticator-App).</li>
+    <li><b>Lastschriften und Kreditkarte vorerst weiterlaufen lassen</b>, bis klar ist, welche Verträge bleiben (Kapitel 5).</li>
+    <li><b>Vorsicht vor Betrügern.</b> Nach Todesfällen kommen gezielt gefälschte Rechnungen, Anrufe und E-Mails.
+        Im Zweifel nichts bezahlen und nichts anklicken, sondern erst nachfragen (Kapitel 3).</li>
+  </ol>
+</div>
+
+<!-- ===================================================== 2 -->
+<h2 class="chapter" id="k2"><span class="num">2</span>Checkliste: Die ersten Tage und Wochen</h2>
+
+<h3>In den ersten Tagen</h3>
+<ul class="check">
+  <li>Mein Handy und meinen Laptop an einem sicheren Ort aufbewahren und das Handy regelmäßig laden.</li>
+  <li>Prüfen, ob das Internet zu Hause läuft. Falls nicht: <a href="#k8">Kapitel 8</a>.</li>
+  <li><b>Notfallzugriff im Passwortmanager anfordern</b> (<a href="#k4-3">Kapitel 4.3</a>). Er braucht eine Wartezeit, deshalb früh anfangen.</li>
+  <li>Das verschlossene Blatt „Notfall-Zugangsdaten“ an sich nehmen. Liegt bei: <span class="fill">Ort</span></li>
+</ul>
+
+<h3>In den ersten Wochen</h3>
+<ul class="check">
+  <li>Mein Haupt-Postfach <code><span class="fill">name@beispiel.de</span></code> lesen (<a href="#k6-5">Kapitel 6.5</a>). Dort kommen Rechnungen, Kündigungsbestätigungen und Warnungen an.</li>
+  <li>Banken informieren (<a href="#k14">Kapitel 14</a>). Dafür wird meist eine Sterbeurkunde benötigt.</li>
+  <li>Abos kündigen, die niemand mehr braucht (<a href="#k5">Kapitel 5</a> und <a href="#k13">13</a>).</li>
+  <li>Soziale Netzwerke löschen lassen oder in den Gedenkzustand versetzen (<a href="#k13">Kapitel 13</a>).</li>
+</ul>
+
+<h3>In den ersten Monaten</h3>
+<ul class="check">
+  <li>Fotos, Dokumente und Passwörter sichern (<a href="#k10">Kapitel 10</a>).</li>
+  <li>Entscheiden: Soll die Technik zu Hause weiterlaufen und von jemandem betreut werden, oder soll sie geordnet verkleinert werden? (<a href="#k11">Kapitel 11</a>)</li>
+  <li>Den Vertrag für Domains und E-Mail prüfen, bevor er sich verlängert (<a href="#k6-2">Kapitel 6.2</a>).</li>
+</ul>
+
+<!-- ===================================================== 3 -->
+<h2 class="chapter" id="k3"><span class="num">3</span>Ansprechpartner und Helfer</h2>
+
+<p>Wenn du bei etwas unsicher bist, frag lieber nach. Diese Personen kennen sich aus oder können helfen:</p>
+<div class="tablewrap"><table>
+  <thead><tr><th>Wer</th><th>Wofür</th><th>Telefon / E-Mail</th></tr></thead>
+  <tbody>
+    <tr><td><span class="fill">Name</span></td><td>Technik, Server, Netzwerk</td><td><span class="fill">Kontakt</span></td></tr>
+    <tr><td><span class="fill">Name</span></td><td>Einfache Computer- und Handyfragen</td><td><span class="fill">Kontakt</span></td></tr>
+    <tr><td><span class="fill">Name</span></td><td>Finanzen, Bank, Erbschaft</td><td><span class="fill">Kontakt</span></td></tr>
+    <tr><td><span class="fill">Domain-/E-Mail-Anbieter</span></td><td>Domains und E-Mail</td><td><span class="fill">Hotline</span> · Kundennummer bereithalten</td></tr>
+    <tr><td><span class="fill">Internetanbieter</span></td><td>Internetanschluss</td><td><span class="fill">Hotline</span> · Kundennummer <span class="fill">…</span></td></tr>
+  </tbody>
+</table></div>
+
+<div class="box">
+  <span class="title">Tipp für die Hilfsperson</span>
+  Bitte zuerst diese Mappe lesen, besonders <a href="#k4-2">Kapitel 4.2</a> (Abhängigkeiten) und <a href="#ka">Anhang A</a>.
+  Bitte nichts umbauen, bevor die Passwörter gesichert sind (<a href="#k10">Kapitel 10</a>).
+</div>
+
+<!-- ===================================================== 4 -->
+<h2 class="chapter" id="k4"><span class="num">4</span>Passwörter: Passwortmanager und Notfallzugriff</h2>
+
+<h3 id="k4-1">4.1 Was ist ein Passwortmanager?</h3>
+<p>Ein Passwortmanager ist ein <b>digitaler Tresor</b>. Darin stehen <b>alle</b> meine Zugangsdaten:
+   Bank, E-Mail, Verträge, Geräte, PINs und auch die Zwei-Faktor-Codes (<a href="#k4-6">4.6</a>).
+   Wir nutzen <span class="fill">z. B. Bitwarden oder Vaultwarden</span>. Du hast dort dein eigenes Konto.</p>
+<p>Ich habe dich als <b>Notfallkontakt</b> eingetragen. Das heißt: Du kannst Zugriff auf meinen Tresor
+   anfordern. Wenn ich nicht innerhalb der <b>Wartezeit</b> widerspreche, bekommst du ihn automatisch. Danach kannst du ein
+   neues Passwort für mein Konto festlegen und hast vollen Zugriff auf alle meine Passwörter.</p>
+<p><span class="tag rot">Nicht abschalten</span> Der Passwortmanager muss bleiben, bis alle Passwörter gesichert sind (<a href="#k10">Kapitel 10</a>).</p>
+
+<div class="tablewrap"><table class="kv">
+  <tr><th>Adresse</th><td><code><span class="fill">https://vault.beispiel.de</span></code></td></tr>
+  <tr><th>Dein Benutzername</th><td><span class="fill">deine E-Mail-Adresse für den Passwortmanager</span></td></tr>
+  <tr><th>Mein Benutzername</th><td><code><span class="fill">name@beispiel.de</span></code></td></tr>
+  <tr><th>Wartezeit Notfallzugriff</th><td><span class="fill">z. B. 1 Tag</span></td></tr>
+  <tr><th>Art des Notfallzugriffs</th><td><span class="fill">Übernehmen (neues Passwort festlegen, voller Zugriff) / nur Anzeigen</span></td></tr>
+</table></div>
+
+<h3 id="k4-2">4.2 Was muss funktionieren, damit der Passwortmanager erreichbar ist?</h3>
+<p>Läuft der Passwortmanager nicht bei einem Anbieter in der Cloud, sondern <b>bei uns zu Hause</b>, müssen alle
+   diese Glieder funktionieren. Bei einem reinen Cloud-Dienst (z. B. bitwarden.com) entfällt diese Kette.</p>
+<div class="chain">
+  <div class="node"><b>Domain</b><span class="fill">vault.beispiel.de</span> beim Domain-Anbieter (bezahlt)</div>
+  <div class="arrow">→</div>
+  <div class="node"><b>Zugang von außen</b><span class="fill">z. B. gemieteter Server / Tunnel</span> (bezahlt)</div>
+  <div class="arrow">→</div>
+  <div class="node"><b>Internet zu Hause</b>Router im <span class="fill">Raum</span></div>
+  <div class="arrow">→</div>
+  <div class="node"><b>Server</b>im <span class="fill">Raum</span>, eingeschaltet</div>
+  <div class="arrow">→</div>
+  <div class="node"><b>Passwortmanager</b>läuft auf dem Server</div>
+</div>
+<p>Außerdem schickt der Notfallzugriff eine Nachricht an meine E-Mail-Adresse. Deshalb: <b>Domain-/E-Mail-Anbieter
+   weiter bezahlen</b> und <b>Strom und Internet nicht abschalten</b>.</p>
+
+<h3 id="k4-3">4.3 Anleitung: Notfallzugriff anfordern</h3>
+<div class="box gelb">
+  <span class="title">Wichtig: Das geht nur im Web-Browser</span>
+  Nicht in der App auf dem Handy. Nimm einen Computer oder Laptop und einen Browser wie Firefox, Chrome oder Edge.
+</div>
+<ol class="steps">
+  <li>Öffne im Browser die Adresse <code><span class="fill">https://vault.beispiel.de</span></code>.</li>
+  <li>Melde dich mit <b>deinem eigenen</b> Konto an (deine E-Mail-Adresse und dein Master-Passwort).
+      Wenn ein Bestätigungscode verlangt wird, nimm den aus deiner Authenticator-App.</li>
+  <li>Klicke im Menü auf <span class="ui">Einstellungen</span> und dann auf <span class="ui">Notfallzugriff</span>.</li>
+  <li>Scrolle zum Bereich <span class="ui">Als Notfallkontakt benannt</span>. Dort steht ein Eintrag mit meinem Namen bzw. meiner E-Mail-Adresse.</li>
+  <li>Klicke rechts neben dem Eintrag auf das Menü mit den <b>drei Punkten ⋮</b> und dann auf <span class="ui">Zugriff anfordern</span>. Bestätige die Rückfrage.</li>
+  <li><b>Jetzt warten.</b> Ich bekomme eine E-Mail mit der Anfrage. Wenn ich nicht widerspreche, wird der Zugriff
+      nach der Wartezeit automatisch freigegeben. Du bekommst darüber eine E-Mail.</li>
+</ol>
+<p class="small muted">Menünamen können sich mit neueren Versionen ändern. Dann nach dem Wort „Notfall“ oder „Emergency“ suchen.</p>
+
+<div class="fotos" data-slot="pw-notfallzugriff" data-titel="Screenshots „Notfallzugriff anfordern“"></div>
+
+<h3 id="k4-4">4.4 Anleitung: Mein Konto übernehmen</h3>
+<ol class="steps">
+  <li>Melde dich wieder wie oben mit <b>deinem</b> Konto im Browser an und gehe zu <span class="ui">Einstellungen</span> → <span class="ui">Notfallzugriff</span>.</li>
+  <li>Bei meinem Eintrag steht jetzt der Status „genehmigt“. Klicke auf die <b>drei Punkte ⋮</b> → <span class="ui">Übernehmen</span>.</li>
+  <li>Lege ein <b>neues Master-Passwort</b> für mein Konto fest. Schreibe es sofort auf das Blatt „Notfall-Zugangsdaten“
+      (<a href="#k15">Kapitel 15</a>) oder speichere es in deinem eigenen Tresor.</li>
+  <li>Melde dich von deinem Konto ab.</li>
+  <li>Melde dich jetzt mit <b>meinem</b> Konto an: mein Benutzername und das neue Passwort.</li>
+  <li>Fertig. Du siehst jetzt alle meine Einträge. Über das Suchfeld findest du alles schnell, zum Beispiel „Bank“ oder „Router“.</li>
+</ol>
+<div class="box gruen">
+  <span class="title">Danach als Erstes</span>
+  Passwörter sichern, damit sie nicht von unserer Technik zu Hause abhängen (<a href="#k10-pw">Kapitel 10.1</a>).
+</div>
+
+<div class="fotos" data-slot="pw-uebernahme" data-titel="Screenshots „Konto übernehmen“"></div>
+
+<h3 id="k4-5">4.5 Wenn es nicht klappt</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Problem</th><th>Was du tun kannst</th></tr></thead>
+  <tbody>
+    <tr><td>Die Webseite des Passwortmanagers lädt nicht</td>
+        <td>Prüfe, ob das Internet zu Hause geht. Prüfe, ob der Server läuft (<a href="#k8">Kapitel 8</a>).
+            Prüfe, ob Rechnungen für Domain oder Server offen sind.</td></tr>
+    <tr><td>Ich habe mein eigenes Master-Passwort vergessen</td>
+        <td>Ein Master-Passwort kann niemand zurücksetzen. Nimm Plan B oder C.</td></tr>
+    <tr><td>Es gibt keine Freigabe-E-Mail</td>
+        <td>Im Browser bei <span class="ui">Notfallzugriff</span> nachsehen, ob der Status schon „genehmigt“ ist.</td></tr>
+  </tbody>
+</table></div>
+
+<h4>Plan B: Mein Handy oder mein Laptop</h4>
+<p>Auf meinem Handy und meinem Laptop bin ich in der Passwortmanager-App oft noch angemeldet.
+   Die App zeigt die Passwörter dann auch ohne Internetverbindung an (nur lesen).
+   Zum Entsperren brauchst du die Handy-PIN bzw. das Laptop-Passwort und eventuell mein Master-Passwort.
+   Beides steht auf dem Blatt „Notfall-Zugangsdaten“.</p>
+
+<h4>Plan C: Das Papier-Blatt „Notfall-Zugangsdaten“</h4>
+<p>Darauf stehen die allerwichtigsten Zugänge (<a href="#k15">Kapitel 15</a>).
+   Aufbewahrungsort: <span class="fill">Ort</span></p>
+
+<h3 id="k4-6">4.6 Was sind Zwei-Faktor-Codes?</h3>
+<p>Viele Dienste wollen bei der Anmeldung zusätzlich zum Passwort eine <b>6-stellige Zahl</b>, die sich alle 30 Sekunden ändert.
+   Das nennt man Zwei-Faktor-Code (2FA, TOTP). Diese Codes stehen im Passwortmanager direkt beim jeweiligen Eintrag
+   im Feld <span class="ui">Authentifizierungsschlüssel (TOTP)</span>.</p>
+<p>Auf dem Blatt „Notfall-Zugangsdaten“ steht bei manchen Zugängen ein <b>Auth-Schlüssel</b> (eine lange Buchstabenfolge).
+   Den kannst du in jede Authenticator-App eintippen:
+   <span class="ui">+</span> → <span class="ui">Schlüssel manuell eingeben</span>. Danach zeigt die App die passenden Codes an.</p>
+
+<!-- ===================================================== 5 -->
+<h2 class="chapter" id="k5"><span class="num">5</span>Laufende Kosten auf einen Blick</h2>
+
+<p>Alle Verträge, die regelmäßig Geld kosten. Die Spalte „Empfehlung“ sagt, was zu tun ist. Die Einträge sind Beispiele.</p>
+<div class="tablewrap"><table>
+  <thead><tr><th>Dienst</th><th>Wofür</th><th>Kosten</th><th>Zahlung</th><th>Empfehlung</th></tr></thead>
+  <tbody>
+    <tr><td><b><span class="fill">Domain-/E-Mail-Anbieter</span></b></td><td>Domains und alle E-Mail-Adressen</td><td><span class="fill">… € / Jahr</span></td><td><span class="fill">Lastschrift</span></td>
+        <td><span class="tag rot">Nicht abschalten</span><br>Später eventuell verkleinern (<a href="#k6-6">6.6</a>)</td></tr>
+    <tr><td><b><span class="fill">Server-Anbieter (VPS)</span></b></td><td>Zugang von außen zum Server zu Hause</td><td><span class="fill">… € / Monat</span></td><td><span class="fill">Kreditkarte</span></td>
+        <td><span class="tag rot">Nicht abschalten</span><br>Erst nach dem Ausstiegsplan kündigen (<a href="#k11">11</a>)</td></tr>
+    <tr><td><b><span class="fill">Internetanbieter</span></b></td><td>Internet- und Telefonanschluss</td><td><span class="fill">… € / Monat</span></td><td><span class="fill">…</span></td>
+        <td><span class="tag rot">Nicht abschalten</span><br>Vertrag umschreiben lassen</td></tr>
+    <tr><td><b>Strom</b></td><td>Server, NAS und Netzwerk brauchen Strom rund um die Uhr</td><td><span class="fill">ca. … € / Monat</span></td><td><span class="fill">…</span></td>
+        <td><span class="muted">Info: Wird nach dem Ausstiegsplan günstiger</span></td></tr>
+    <tr><td><b><span class="fill">Cloud-Speicher</span></b></td><td>Sicherung der Handys und wichtiger Daten</td><td><span class="fill">… / einmalig</span></td><td><span class="fill">…</span></td>
+        <td><span class="tag rot">Behalten</span><br>Ziel für den Datenumzug (<a href="#k10-cloud">Kapitel 10</a>)</td></tr>
+    <tr><td><b><span class="fill">Streaming-Abo</span></b></td><td><span class="fill">z. B. Filme, Musik</span></td><td><span class="fill">… € / Monat</span></td><td><span class="fill">…</span></td>
+        <td><span class="tag gelb">In Ruhe entscheiden</span></td></tr>
+    <tr><td><b><span class="fill">Spiele-Abo</span></b></td><td><span class="fill">z. B. Konsole</span></td><td><span class="fill">… € / Jahr</span></td><td><span class="fill">…</span></td>
+        <td><span class="tag gruen">Kann weg</span></td></tr>
+    <tr><td><span class="fill">weiterer Vertrag</span></td><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table></div>
+<div class="box">
+  <span class="title">Gut zu wissen</span>
+  Abos, die per Kreditkarte bezahlt werden, laufen automatisch aus, wenn die Kreditkarte gesperrt wird.
+  <b>Aber Achtung:</b> Läuft auch etwas Wichtiges (z. B. der Server-Anbieter) über die Karte, fällt es dann ebenfalls weg.
+</div>
+
+<!-- ===================================================== 6 -->
+<h2 class="chapter" id="k6"><span class="num">6</span>Domains und E-Mail</h2>
+
+<h3 id="k6-1">6.1 Kurz erklärt</h3>
+<p>Eine <b>Domain</b> ist ein Name im Internet, zum Beispiel <code><span class="fill">beispiel-familie.de</span></code>.
+   Eigene E-Mail-Adressen hängen an diesen Domains: <code><span class="fill">name@beispiel-familie.de</span></code> funktioniert nur,
+   solange uns die Domain gehört.</p>
+<div class="box rot">
+  <span class="title">Warum Domains nicht gekündigt werden dürfen</span>
+  Wird eine Domain gekündigt, kann sie jeder Fremde kaufen und alle E-Mails an diese Adressen empfangen.
+  Damit könnte er bei Shops, Bezahldiensten oder der Bank „Passwort vergessen“ klicken und die Konten übernehmen.
+  <b>Wichtige Domains deshalb möglichst viele Jahre behalten.</b>
+</div>
+
+<h3 id="k6-2">6.2 Der Vertrag beim Anbieter</h3>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Anbieter</th><td><span class="fill">Name des Anbieters</span></td></tr>
+  <tr><th>Tarif</th><td><span class="fill">Tarifname</span></td></tr>
+  <tr><th>Kosten</th><td><span class="fill">… € pro …</span></td></tr>
+  <tr><th>Kundennummer</th><td><span class="fill">123456</span></td></tr>
+  <tr><th>Vertragsnummer</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Nächste Verlängerung</th><td><span class="fill">TT.MM.JJJJ</span></td></tr>
+  <tr><th>Zahlung</th><td><span class="fill">Lastschrift von Konto …</span></td></tr>
+  <tr><th>Vertrag und Rechnungen</th><td><code><span class="fill">https://kundenbereich.beispiel.de</span></code></td></tr>
+  <tr><th>E-Mails im Browser lesen</th><td>Webmail: <code><span class="fill">https://webmail.beispiel.de</span></code></td></tr>
+  <tr><th>Zugangsdaten</th><td>Passwortmanager oder Blatt „Notfall-Zugangsdaten“</td></tr>
+</table></div>
+<p><span class="tag rot">Nicht abschalten</span> Ohne diesen Vertrag sind <b>alle Domains und sämtliche E-Mail-Adressen weg</b>.</p>
+
+<h3 id="k6-3">6.3 Die Domains</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Domain</th><th>Wofür</th><th>Kosten</th><th>Empfehlung</th></tr></thead>
+  <tbody>
+    <tr><td><b><span class="fill">beispiel-familie.de</span></b></td><td>Unsere E-Mail-Adressen</td><td><span class="fill">inklusive</span></td><td><span class="tag rot">Behalten</span></td></tr>
+    <tr><td><b><span class="fill">beispiel-technik.de</span></b></td><td>Technische Adressen, Server</td><td><span class="fill">inklusive</span></td><td><span class="tag rot">Behalten</span></td></tr>
+    <tr><td><span class="fill">beispielfamilie.de</span></td><td>Nur Tippfehler-Schutz</td><td><span class="fill">… € / Jahr</span></td><td><span class="tag gruen">Kann weg</span></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="k6-4">6.4 Die Postfächer</h3>
+<p>Eine <b>Catch-All-Adresse</b> (geschrieben als <code>*@…</code>) fängt alle E-Mails auf, die an eine nicht eingerichtete Adresse dieser Domain gehen.
+   Eine <b>Weiterleitung</b> schickt E-Mails automatisch in ein anderes Postfach.</p>
+
+<div class="tablewrap"><table>
+  <thead><tr><th style="width:38%">Adresse</th><th>Wem / Verwendung</th></tr></thead>
+  <tbody>
+    <tr><td><code><span class="fill">name@beispiel-familie.de</span></code></td><td><b>Mein Hauptpostfach.</b> Hier kommen Rechnungen, Verträge und Bestätigungen an.</td></tr>
+    <tr><td><code><span class="fill">partner@beispiel-familie.de</span></code></td><td>Postfach von <span class="fill">Name</span></td></tr>
+    <tr><td><code><span class="fill">haus@beispiel-familie.de</span></code></td><td>Gemeinsames Postfach für Haus, Verträge usw.</td></tr>
+    <tr><td><code><span class="fill">technik@beispiel-technik.de</span></code></td><td>Absender unserer Server-Anwendungen. <b>Nicht löschen</b>, solange der Server läuft.</td></tr>
+    <tr><td><code>*@<span class="fill">beispiel-familie.de</span></code></td><td>Catch-All für alle anderen Adressen</td></tr>
+  </tbody>
+</table></div>
+
+<h4>Adressen bei anderen Anbietern</h4>
+<div class="tablewrap"><table>
+  <thead><tr><th style="width:38%">Adresse</th><th>Verwendung</th><th>Empfehlung</th></tr></thead>
+  <tbody>
+    <tr><td><code><span class="fill">name@freemail.de</span></code></td><td>Ältere Adresse, hier kommen noch E-Mails von Shops an.</td><td><span class="tag gelb">Ab und zu reinschauen</span></td></tr>
+    <tr><td><span class="fill">Google-/Apple-/Microsoft-Konto</span></td><td><span class="fill">Handy, Kalender, Fotos</span></td><td><span class="tag gelb">In Ruhe entscheiden</span></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="k6-5">6.5 Anleitung: Meine E-Mails lesen</h3>
+<ol class="steps">
+  <li>Suche im Passwortmanager nach meiner E-Mail-Adresse. Dort stehen Benutzername und Passwort des Postfachs.</li>
+  <li>Öffne im Browser das Webmail: <code><span class="fill">https://webmail.beispiel.de</span></code>.</li>
+  <li>Gib Benutzername (oder die E-Mail-Adresse) und Passwort ein und klicke auf <span class="ui">Anmelden</span>.</li>
+  <li>Wichtige E-Mails kommen von Banken, Versicherungen, Vertragspartnern und Händlern.</li>
+</ol>
+<div class="box">
+  <span class="title">Tipp: Alles an einem Ort</span>
+  Eine Hilfsperson kann beim Anbieter einrichten, dass alle E-Mails an meine Adresse zusätzlich an deine weitergeleitet werden.
+</div>
+<div class="box gelb">
+  <span class="title">Konten bei Shops und Diensten umstellen</span>
+  Wenn du ein Konto von mir weiter nutzen möchtest, ändere dort in den Kontoeinstellungen die E-Mail-Adresse auf deine eigene.
+</div>
+
+<div class="fotos" data-slot="webmail" data-titel="Screenshots Webmail"></div>
+
+<h3 id="k6-6">6.6 Anleitung: Tarif verkleinern (später)</h3>
+<p><span class="tag gelb">In Ruhe entscheiden</span> Das spart Geld, ist aber kein Muss. Am besten mit einer Hilfsperson machen.</p>
+<ol class="steps">
+  <li>Erst den <a href="#k11">Ausstiegsplan</a> abschließen, wenn der Server abgeschaltet werden soll.</li>
+  <li>Im Kundenbereich des Anbieters anmelden. Zugang im Passwortmanager.</li>
+  <li>Unwichtige Zusatzdomains kündigen (siehe 6.3).</li>
+  <li>Prüfen, ob ein kleinerer Tarif reicht. <b>E-Mail muss im Tarif enthalten bleiben.</b></li>
+</ol>
+
+<!-- ===================================================== 7 -->
+<h2 class="chapter" id="k7"><span class="num">7</span>Heimnetz: Internet, WLAN und Geräte</h2>
+
+<h3 id="k7-1">7.1 Übersicht</h3>
+<p>Das Internet kommt über den <b>Router</b> im <span class="fill">Raum</span> ins Haus. Daneben steht der <b>Serverschrank</b>
+   mit Server, NAS, DNS-Filter, Smarthome-Zentrale und einer <b>USV</b> (Notstrom-Akku, siehe <a href="#k8-strom">Kapitel 8</a>).
+   Von dort verteilen <b>Switche</b> das Netzwerk an die Netzwerkdosen in den Zimmern. <b>Repeater</b> erweitern das WLAN.</p>
+<div class="todo">Beschreibung und Netzwerkplan an die eigene Umgebung anpassen. Den Plan kann ein IT-Helfer im Quelltext (SVG) ändern oder durch ein Foto/eine Skizze ersetzen.</div>
+
+<figure>
+<svg viewBox="0 0 900 480" role="img" aria-label="Netzwerkplan (Beispiel)">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5b6571"/></marker>
+  </defs>
+  <style>
+    .room { fill: #f6f7f9; stroke: #b9c1ca; stroke-dasharray: 5 4; }
+    .rack { fill: #eceff2; stroke: #8a95a1; stroke-width: 1.4; }
+    .roomlbl { font: 600 13px sans-serif; fill: #5b6571; }
+    .dev { fill: #fff; stroke: #1f5f8b; stroke-width: 1.6; }
+    .dev.red { stroke: #a8231b; stroke-width: 2.2; }
+    .t { font: 600 13px sans-serif; fill: #13202d; }
+    .s { font: 11px sans-serif; fill: #5b6571; }
+    .ln { stroke: #5b6571; stroke-width: 1.6; fill: none; }
+    .pw { stroke: #c27c0e; stroke-width: 2; stroke-dasharray: 6 4; fill: none; }
+    .ups { fill: #fff8e8; stroke: #c27c0e; stroke-width: 2.2; }
+    .wl { stroke: #1f5f8b; stroke-width: 1.8; stroke-dasharray: 2 4; fill: none; }
+  </style>
+  <rect x="20" y="15" width="150" height="55" rx="27" class="dev"/>
+  <text x="95" y="39" text-anchor="middle" class="t">Internet</text>
+  <text x="95" y="56" text-anchor="middle" class="s">Internetanbieter</text>
+
+  <rect x="10" y="100" width="560" height="335" rx="10" class="room"/>
+  <text x="24" y="122" class="roomlbl">Technikraum (Beispiel)</text>
+  <rect x="30" y="150" width="160" height="70" rx="8" class="dev red"/>
+  <text x="110" y="177" text-anchor="middle" class="t">Router</text>
+  <text x="110" y="195" text-anchor="middle" class="s">z. B. FRITZ!Box</text>
+  <text x="110" y="210" text-anchor="middle" class="s">192.168.178.1</text>
+
+  <rect x="205" y="128" width="355" height="292" rx="8" class="rack"/>
+  <text x="218" y="148" class="roomlbl">Serverschrank</text>
+  <rect x="218" y="160" width="160" height="72" rx="8" class="dev red"/>
+  <text x="298" y="185" text-anchor="middle" class="t">Server</text>
+  <text x="298" y="203" text-anchor="middle" class="s">eigene Dienste</text>
+  <text x="298" y="218" text-anchor="middle" class="s">z. B. Passwortmanager</text>
+  <rect x="388" y="160" width="160" height="72" rx="8" class="dev red"/>
+  <text x="468" y="185" text-anchor="middle" class="t">NAS</text>
+  <text x="468" y="203" text-anchor="middle" class="s">Datenspeicher</text>
+  <text x="468" y="218" text-anchor="middle" class="s">Fotos, Backups</text>
+  <rect x="218" y="246" width="160" height="72" rx="8" class="dev red"/>
+  <text x="298" y="271" text-anchor="middle" class="t">DNS-Filter</text>
+  <text x="298" y="289" text-anchor="middle" class="s">z. B. Pi-hole</text>
+  <text x="298" y="304" text-anchor="middle" class="s">Werbefilter</text>
+  <rect x="388" y="246" width="160" height="72" rx="8" class="dev"/>
+  <text x="468" y="271" text-anchor="middle" class="t">Smarthome</text>
+  <text x="468" y="289" text-anchor="middle" class="s">z. B. Home Assistant</text>
+  <rect x="218" y="335" width="330" height="70" rx="8" class="ups"/>
+  <text x="383" y="361" text-anchor="middle" class="t">USV (Notstrom-Akku)</text>
+  <text x="383" y="379" text-anchor="middle" class="s">versorgt Serverschrank und Router</text>
+  <text x="383" y="394" text-anchor="middle" class="s">ca. … Minuten bei Stromausfall</text>
+
+  <rect x="600" y="100" width="290" height="195" rx="10" class="room"/>
+  <text x="614" y="122" class="roomlbl">Verteilung (Beispiel)</text>
+  <rect x="620" y="132" width="250" height="55" rx="8" class="dev red"/>
+  <text x="745" y="155" text-anchor="middle" class="t">Switch(e)</text>
+  <text x="745" y="175" text-anchor="middle" class="s">→ Netzwerkdosen in den Zimmern</text>
+  <rect x="620" y="215" width="120" height="65" rx="8" class="dev"/>
+  <text x="680" y="243" text-anchor="middle" class="t">Drucker</text>
+  <text x="680" y="260" text-anchor="middle" class="s">Netzwerkdrucker</text>
+  <rect x="750" y="215" width="120" height="65" rx="8" class="dev"/>
+  <text x="810" y="243" text-anchor="middle" class="t">Weiteres</text>
+  <text x="810" y="260" text-anchor="middle" class="s">Gerät</text>
+
+  <rect x="600" y="310" width="290" height="125" rx="10" class="room"/>
+  <text x="614" y="330" class="roomlbl">Wohnbereich (Beispiel)</text>
+  <rect x="620" y="345" width="250" height="70" rx="8" class="dev"/>
+  <text x="745" y="372" text-anchor="middle" class="t">WLAN-Repeater</text>
+  <text x="745" y="390" text-anchor="middle" class="s">erweitert das WLAN</text>
+
+  <rect x="290" y="452" width="22" height="14" rx="3" class="dev red"/>
+  <text x="318" y="464" class="s">nicht ausschalten</text>
+  <path d="M440,459 H480" class="pw"/>
+  <text x="488" y="464" class="s">Strom über die USV</text>
+  <path d="M610,459 H650" class="ln"/>
+  <text x="658" y="464" class="s">Kabel</text>
+  <path d="M710,459 H750" class="wl"/>
+  <text x="758" y="464" class="s">WLAN</text>
+
+  <path d="M100,70 V150" class="ln" marker-end="url(#ah)"/>
+  <path d="M190,185 H218" class="ln" marker-end="url(#ah)"/>
+  <path d="M160,150 V85 H745 V132" class="ln" marker-end="url(#ah)"/>
+  <path d="M680,187 V215" class="ln"/>
+  <path d="M810,187 V215" class="ln"/>
+  <path d="M745,187 V345" class="ln" marker-end="url(#ah)"/>
+  <path d="M218,370 H160 V220" class="pw"/>
+</svg>
+<figcaption>Beispielplan. Rot umrandete Geräte bitte nicht ausschalten.</figcaption>
+</figure>
+
+<div class="fotos" data-slot="serverschrank" data-titel="Serverschrank / Technikraum (Übersicht)"></div>
+
+<h3 id="k7-2">7.2 Welches Gerät steht wo, und darf es aus?</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Gerät</th><th>Was macht es?</th><th>Standort</th><th>Ausschalten?</th></tr></thead>
+  <tbody>
+    <tr><td><b>Router</b><br><span class="small muted"><span class="fill">Modell</span></span></td><td>Bringt das Internet ins Haus und macht das WLAN</td><td><span class="fill">Raum</span></td><td><span class="tag rot">Nicht abschalten</span></td></tr>
+    <tr><td><b>USV</b><br><span class="small muted"><span class="fill">Modell</span></span></td><td>Hält bei Stromausfall Router und Serverschrank eine Weile am Laufen</td><td><span class="fill">Serverschrank</span></td><td><span class="tag rot">Nicht abschalten</span></td></tr>
+    <tr><td><b>Server</b><br><span class="small muted"><span class="fill">Modell</span></span></td><td>Passwortmanager, Dokumentenablage und weitere Dienste</td><td><span class="fill">Serverschrank</span></td><td><span class="tag rot">Nicht abschalten</span></td></tr>
+    <tr><td><b>NAS</b><br><span class="small muted"><span class="fill">Modell</span></span></td><td>Speicher für Fotos und Datensicherungen</td><td><span class="fill">Serverschrank</span></td><td><span class="tag rot">Nicht abschalten</span></td></tr>
+    <tr><td><b>DNS-Filter</b><br><span class="small muted"><span class="fill">z. B. Raspberry Pi mit Pi-hole</span></span></td><td>Filtert Werbung. Ohne ihn findet kein Gerät mehr Internetseiten!</td><td><span class="fill">Serverschrank</span></td><td><span class="tag rot">Nicht abschalten</span></td></tr>
+    <tr><td><b>Smarthome-Zentrale</b><br><span class="small muted"><span class="fill">Modell</span></span></td><td>Steuert Licht, Heizung, Tore …</td><td><span class="fill">Serverschrank</span></td><td><span class="tag gelb">In Ruhe entscheiden</span></td></tr>
+    <tr><td><b>Switch(e)</b></td><td>Verteiler für die Netzwerkkabel in die Zimmer</td><td><span class="fill">Raum</span></td><td><span class="tag rot">Nicht abschalten</span></td></tr>
+    <tr><td><b>WLAN-Repeater</b><br><span class="small muted"><span class="fill">Modell</span></span></td><td>Verstärkt das WLAN</td><td><span class="fill">Raum</span></td><td><span class="tag gelb">Unkritisch</span></td></tr>
+    <tr><td><b>Drucker</b></td><td>Drucken</td><td><span class="fill">Raum</span></td><td><span class="tag gruen">Unkritisch</span></td></tr>
+    <tr><td><b>Scanner</b></td><td>Scannt, schickt Dokumente an die Dokumentenablage</td><td><span class="fill">Raum</span></td><td><span class="tag gruen">Unkritisch</span></td></tr>
+    <tr><td><span class="fill">weiteres Gerät</span></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table></div>
+
+<section class="geraetefotos">
+<h4>Fotos der Geräte</h4>
+<p class="small muted">Damit man die Geräte vor Ort wiedererkennt.</p>
+<div class="geraete-raster">
+  <div class="geraet"><div class="geraet-name">Router<span>Standort</span></div><div class="fotos" data-slot="geraet-router" data-titel="Router"></div></div>
+  <div class="geraet"><div class="geraet-name">USV<span>Standort</span></div><div class="fotos" data-slot="geraet-usv" data-titel="USV"></div></div>
+  <div class="geraet"><div class="geraet-name">Server<span>Standort</span></div><div class="fotos" data-slot="geraet-server" data-titel="Server"></div></div>
+  <div class="geraet"><div class="geraet-name">NAS<span>Standort</span></div><div class="fotos" data-slot="geraet-nas" data-titel="NAS"></div></div>
+  <div class="geraet"><div class="geraet-name">DNS-Filter<span>Standort</span></div><div class="fotos" data-slot="geraet-dns-filter" data-titel="DNS-Filter"></div></div>
+  <div class="geraet"><div class="geraet-name">Smarthome-Zentrale<span>Standort</span></div><div class="fotos" data-slot="geraet-smarthome" data-titel="Smarthome-Zentrale"></div></div>
+  <div class="geraet"><div class="geraet-name">Switch(e)<span>Standort</span></div><div class="fotos" data-slot="geraet-switch" data-titel="Switch(e)"></div></div>
+  <div class="geraet"><div class="geraet-name">WLAN-Repeater<span>Standort</span></div><div class="fotos" data-slot="geraet-repeater" data-titel="WLAN-Repeater"></div></div>
+  <div class="geraet"><div class="geraet-name">Drucker<span>Standort</span></div><div class="fotos" data-slot="geraet-drucker" data-titel="Drucker"></div></div>
+  <div class="geraet"><div class="geraet-name">Scanner<span>Standort</span></div><div class="fotos" data-slot="geraet-scanner" data-titel="Scanner"></div></div>
+  <div class="geraet"><div class="geraet-name">PV-Anlage / Wechselrichter<span>Standort</span></div><div class="fotos" data-slot="geraet-pv" data-titel="PV-Anlage / Wechselrichter"></div></div>
+  <div class="geraet"><div class="geraet-name">Torantrieb / Torsteuerung<span>Standort</span></div><div class="fotos" data-slot="geraet-tor" data-titel="Torantrieb / Torsteuerung"></div></div>
+  <div class="geraet"><div class="geraet-name">Handy<span>Inhaber/in</span></div><div class="fotos" data-slot="geraet-handy" data-titel="Handy"></div></div>
+  <div class="geraet"><div class="geraet-name">Laptop<span>Inhaber/in</span></div><div class="fotos" data-slot="geraet-laptop" data-titel="Laptop"></div></div>
+  <div class="geraet"><div class="geraet-name">Weiteres Gerät<span>Standort</span></div><div class="fotos" data-slot="geraet-weiteres" data-titel="Weiteres Gerät"></div></div>
+</div>
+</section>
+
+<h3 id="k7-3">7.3 WLAN</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Netz</th><th>Name (SSID)</th><th>Passwort</th></tr></thead>
+  <tbody>
+    <tr><td>Hauptnetz</td><td><code><span class="fill">MeinWLAN</span></code></td><td>Passwortmanager, Suchwort „WLAN“</td></tr>
+    <tr><td>Gäste-WLAN</td><td><code><span class="fill">MeinWLAN-Gast</span></code></td><td>Passwortmanager oder Router (siehe unten)</td></tr>
+  </tbody>
+</table></div>
+<p><b>Gäste-WLAN-Passwort oder QR-Code anzeigen:</b> In der Verwaltung des Routers (<a href="#k7-4">7.4</a>), bei einer FRITZ!Box unter
+   <span class="ui">WLAN</span> → <span class="ui">Gastzugang</span>. Dort gibt es oft ein Infoblatt mit QR-Code zum Ausdrucken.</p>
+
+<h3 id="k7-4">7.4 Router und Repeater</h3>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Modell</th><td><span class="fill">z. B. FRITZ!Box …</span></td></tr>
+  <tr><th>Adresse im Browser</th><td><code><span class="fill">http://fritz.box</span></code> oder <code><span class="fill">http://192.168.178.1</span></code> (nur von zu Hause)</td></tr>
+  <tr><th>Passwort</th><td>Passwortmanager, Suchwort „Router“</td></tr>
+  <tr><th>Internet</th><td><span class="fill">Anbieter, Anschlussart (DSL, Glasfaser, Kabel)</span></td></tr>
+  <tr><th>Internet-Zugangsdaten</th><td>Passwortmanager</td></tr>
+  <tr><th>Telefonie</th><td><span class="fill">Rufnummer, Anbieter, Telefone</span></td></tr>
+  <tr><th>Repeater</th><td><span class="fill">Modell, Standort, per Kabel oder WLAN angebunden</span>. Bei Mesh holen sich Repeater ihre Einstellungen automatisch vom Router.</td></tr>
+  <tr><th>Sicherung der Einstellungen</th><td><span class="fill">Ort und Datum der letzten Sicherungsdatei</span></td></tr>
+</table></div>
+
+<div class="fotos" data-slot="router-repeater" data-titel="Router und Repeater: Anschlüsse, Einstellungen"></div>
+
+<h3 id="k7-5">7.5 DNS-Filter: der Werbefilter</h3>
+<p>Wenn ein Gerät eine Internetseite aufruft, fragt es zuerst nach, wo diese Seite zu finden ist.
+   Diese Nachfrage beantwortet bei uns ein <b>DNS-Filter</b> (<span class="fill">z. B. Pi-hole</span>), eine Art Telefonbuch fürs Internet.
+   Steht die Adresse auf einer Liste mit Werbung oder Tracking, gibt er keine Antwort und die Werbung wird nicht geladen.</p>
+<div class="box rot">
+  <span class="title">Wichtig</span>
+  Weil <b>alle</b> Geräte den DNS-Filter fragen, gilt: <b>Ist er aus, geht bei keinem Gerät mehr das Internet</b>,
+  obwohl der Router einwandfrei funktioniert. Die Lösung steht in <a href="#k8-dns">Kapitel 8</a>.
+</div>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Gerät</th><td><span class="fill">z. B. Raspberry Pi im Serverschrank</span></td></tr>
+  <tr><th>Verwaltung im Browser</th><td><code><span class="fill">http://192.168.178.5/admin</span></code></td></tr>
+  <tr><th>Passwort</th><td>Passwortmanager</td></tr>
+  <tr><th>Ausnahmen</th><td><span class="fill">z. B. Dienstgeräte werden nicht gefiltert</span></td></tr>
+</table></div>
+
+<div class="fotos" data-slot="dns-filter" data-titel="DNS-Filter: Screenshots"></div>
+
+<h3 id="k7-6">7.6 Außenbereich, Tore und PV-Anlage</h3>
+<p><span class="fill long">Beschreiben, welche Geräte außerhalb des Hauses ans Netz angebunden sind (z. B. Garage, Gartenhaus), und wie.</span></p>
+
+<h4>Tor / Garagentor</h4>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Steuerung per App</th><td><span class="fill">Gerät/Modul, App-Name</span>, Zugang im Passwortmanager</td></tr>
+  <tr><th>Ohne App öffnen</th><td><span class="fill">Handsender / Taster / Schlüsselschalter</span></td></tr>
+  <tr><th>Bei Fehlfunktion</th><td><span class="fill">z. B. Steckdose des Moduls kurz aus- und einschalten</span></td></tr>
+  <tr><th>Bei Stromausfall</th><td>Notentriegelung: <span class="fill">wo, wie</span></td></tr>
+</table></div>
+
+<div class="fotos" data-slot="tor" data-titel="Tor: Handsender, Notentriegelung"></div>
+
+<h4>PV-Anlage</h4>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Wechselrichter</th><td><span class="fill">Hersteller/Modell, Standort, Netzwerkanbindung</span></td></tr>
+  <tr><th>Leistung / Speicher</th><td><span class="fill">… kWp, Batteriespeicher ja/nein</span></td></tr>
+  <tr><th>Überwachung</th><td>App/Portal: <span class="fill">Name</span>, Zugang im Passwortmanager</td></tr>
+  <tr><th>Installateur / Service</th><td><span class="fill">Firma, Telefon</span></td></tr>
+  <tr><th>Netzbetreiber / Einspeisung</th><td><span class="fill">Netzbetreiber, Vertragsnummer, Vergütung auf Konto …</span></td></tr>
+  <tr><th>Marktstammdatenregister</th><td><span class="fill">MaStR-Nummer</span></td></tr>
+</table></div>
+<div class="box gelb">
+  <span class="title">PV-Anlage beim Erbfall</span>
+  Wechselt der Betreiber der Anlage, muss das dem <b>Netzbetreiber</b> mitgeteilt und im
+  <b>Marktstammdatenregister</b> geändert werden. Fristen und Ablauf mit Installateur oder Netzbetreiber klären.
+</div>
+
+<div class="fotos" data-slot="pv-anlage" data-titel="PV-Anlage: Wechselrichter, App"></div>
+
+<!-- ===================================================== 8 -->
+<h2 class="chapter" id="k8"><span class="num">8</span>Hilfe! Häufige Probleme lösen</h2>
+
+<h3 id="k8-internet">Kein Internet</h3>
+<ol class="steps">
+  <li><b>Nur ein Gerät betroffen?</b> Dann das Gerät neu starten bzw. WLAN aus- und wieder einschalten. Fertig.</li>
+  <li><b>Alle Geräte betroffen:</b> Geh zum Router (<span class="fill">Raum</span>). Leuchtet die Lampe für Internet dauerhaft grün?
+      <br>Wenn nicht: Stecker des Routers ziehen, <b>30 Sekunden warten</b>, wieder einstecken, <b>5 Minuten warten</b>.</li>
+  <li><b>Geht immer noch nicht?</b> Leuchten an den Geräten im Serverschrank die Lämpchen? Wenn alles dunkel ist: Steckdosenleiste und Sicherungskasten prüfen.</li>
+  <li><b>Router leuchtet grün, aber trotzdem lädt keine Seite?</b> Dann ist wahrscheinlich der <b>DNS-Filter</b> ausgefallen.
+      Stecker am DNS-Filter ziehen, 10 Sekunden warten, wieder einstecken, 3 Minuten warten.</li>
+  <li><b>Hilft das nicht:</b> Notlösung unten durchführen oder den Internetanbieter anrufen.</li>
+</ol>
+
+<div class="fotos" data-slot="kein-internet" data-titel="Router-Lämpchen und Stecker"></div>
+
+<h4 id="k8-dns">Notlösung: DNS-Filter umgehen</h4>
+<p>Damit läuft das Internet wieder ohne DNS-Filter (dann nur ohne Werbefilter). Das kann man jederzeit rückgängig machen.</p>
+<ol class="steps">
+  <li>Mit einem Laptop mit dem Heimnetz verbinden. Im Browser die Router-Verwaltung aufrufen und anmelden.</li>
+  <li>Die Einstellung für den <b>DNS-Server im Heimnetz</b> suchen. Bei einer FRITZ!Box:
+      <span class="ui">Heimnetz</span> → <span class="ui">Netzwerk</span> → <span class="ui">Netzwerkeinstellungen</span> → <span class="ui">IPv4-Einstellungen</span> → <span class="ui">Lokaler DNS-Server</span>.</li>
+  <li>Dort steht die Adresse des DNS-Filters (<code><span class="fill">192.168.178.5</span></code>). Ändere sie auf die Adresse des Routers selbst (<code><span class="fill">192.168.178.1</span></code>) und speichere.</li>
+  <li>Bei IPv6 ggf. ebenfalls den eingetragenen DNS-Server entfernen.</li>
+  <li>Alle Geräte einmal neu starten oder WLAN aus- und einschalten.</li>
+</ol>
+
+<div class="fotos" data-slot="router-dns" data-titel="Screenshots Router DNS-Einstellung"></div>
+
+<h3 id="k8-strom">Stromausfall</h3>
+<p>Steht im Serverschrank eine <b>USV</b> (unterbrechungsfreie Stromversorgung), laufen die daran angeschlossenen Geräte
+   (<span class="fill">z. B. Router, Server, NAS, DNS-Filter</span>) bei Stromausfall noch <b>etwa <span class="fill">…</span> Minuten</b> weiter.</p>
+<ul>
+  <li>Die USV <b>piept oder blinkt</b> während des Stromausfalls. Das ist normal. <b>Die USV nicht ausschalten!</b></li>
+  <li>Geräte, die nicht an der USV hängen (<span class="fill">z. B. Switche, Repeater</span>), fallen sofort aus.</li>
+  <li>Dauert der Stromausfall länger: <span class="fill long">Server und NAS fahren automatisch herunter / bitte von Hand herunterfahren (siehe unten)</span>.</li>
+</ul>
+
+<div class="fotos" data-slot="usv" data-titel="USV: Anzeige und Knöpfe"></div>
+
+<h4>Wenn der Strom wieder da ist</h4>
+<p>Bitte nach 15 Minuten prüfen, ob Internet und Passwortmanager wieder gehen. Falls nicht, in dieser Reihenfolge einschalten:</p>
+<ol>
+  <li>Router</li>
+  <li>Switche und DNS-Filter</li>
+  <li>NAS: Einschaltknopf kurz drücken</li>
+  <li>Server: Einschaltknopf kurz drücken. Nach einigen Minuten laufen alle Dienste wieder.</li>
+  <li>Smarthome-Zentrale</li>
+</ol>
+
+<h3>Ein Gerät richtig ausschalten</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Gerät</th><th>So geht es richtig</th></tr></thead>
+  <tbody>
+    <tr><td>Server</td><td>Einschaltknopf <b>einmal kurz</b> drücken, <b>nicht festhalten</b>. Er fährt dann selbst sauber herunter.
+        <b>Nie einfach den Stecker ziehen.</b> <span class="fill">Prüfen, ob das beim eigenen Server so funktioniert.</span></td></tr>
+    <tr><td>NAS</td><td><span class="fill">z. B. Einschaltknopf etwa 3 Sekunden gedrückt halten, bis es piept</span></td></tr>
+    <tr><td>Kleinstcomputer (z. B. Raspberry Pi)</td><td>Haben meist keinen Knopf. Stecker ziehen ist im Notfall in Ordnung.</td></tr>
+    <tr><td>Router, Repeater, Switche</td><td>Stecker ziehen ist unproblematisch.</td></tr>
+    <tr><td>USV</td><td>Normalerweise <b>nie</b> ausschalten. Nur wenn nötig: erst die angeschlossenen Geräte herunterfahren, dann die USV ausschalten.</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Weitere Probleme</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th style="width:32%">Problem</th><th>Lösung</th></tr></thead>
+  <tbody>
+    <tr><td>Passwortmanager oder Dokumentenablage laden nicht</td><td>Läuft das Internet? Läuft der Server? Sind die Rechnungen für Domain und Server bezahlt? Falls alles ja: Hilfsperson fragen.</td></tr>
+    <tr><td>Drucker druckt nicht</td><td>Drucker aus- und einschalten. Verwaltung im Browser: <code><span class="fill">http://192.168.178.x</span></code>.</td></tr>
+    <tr><td>Tor reagiert nicht auf die App</td><td><span class="fill">Lösungsweg eintragen</span>. Bis dahin das Tor mit Handsender oder von Hand öffnen (<a href="#k7-6">7.6</a>).</td></tr>
+    <tr><td>E-Mail mit Zahlungsaufforderung</td><td>Erst im Kundenbereich des Anbieters prüfen, ob die Rechnung echt ist. Nicht auf Links in der E-Mail klicken.</td></tr>
+    <tr><td>Warn-E-Mails vom Server</td><td>Ignorieren, solange alles funktioniert. Bei Häufung der Hilfsperson weiterleiten.</td></tr>
+    <tr><td>Anruf „vom Support“ oder „von der Bank“</td><td>Fast immer Betrug. Auflegen. Niemals Fernzugriff erlauben.</td></tr>
+  </tbody>
+</table></div>
+
+<!-- ===================================================== 9 -->
+<h2 class="chapter" id="k9"><span class="num">9</span>Server und eigene Dienste</h2>
+<p>Dieses Kapitel ist eher für eine technisch versierte Hilfsperson. Normalerweise muss hier niemand etwas tun.</p>
+
+<h3 id="k9-1">9.1 Der Server</h3>
+<p>Auf dem Server laufen unsere selbst betriebenen Dienste. <span class="fill long">z. B. Proxmox als Virtualisierung, jeder Dienst in einer eigenen VM.</span></p>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Gerät</th><td><span class="fill">Modell, Standort</span></td></tr>
+  <tr><th>Verwaltung im Browser</th><td><code><span class="fill">https://server.local:8006/</span></code> (nur im Heimnetz)</td></tr>
+  <tr><th>Anmeldung</th><td><span class="fill">Benutzer</span>, Passwort im Passwortmanager oder auf dem Notfallblatt</td></tr>
+  <tr><th>Datensicherung</th><td><span class="fill">z. B. täglich auf das NAS</span></td></tr>
+</table></div>
+
+<div class="fotos" data-slot="server" data-titel="Server: Einschaltknopf, Anschlüsse"></div>
+
+<h3 id="k9-2">9.2 Die Dienste im Überblick</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Dienst</th><th>Was ist das?</th><th>Adresse</th><th>Empfehlung</th></tr></thead>
+  <tbody>
+    <tr><td><b>Passwortmanager</b></td><td><span class="fill">z. B. Vaultwarden</span></td><td><code><span class="fill">vault.beispiel.de</span></code></td>
+        <td><span class="tag rot">Nicht abschalten</span><br>Erst nach Sicherung der Passwörter (<a href="#k10-pw">10.1</a>)</td></tr>
+    <tr><td><b>Dokumentenablage</b></td><td><span class="fill">z. B. Paperless-ngx</span></td><td><code><span class="fill">dokumente.beispiel.de</span></code></td>
+        <td><span class="tag rot">Nicht abschalten</span><br>Erst nach Export der Dokumente (<a href="#k10-docs">10.2</a>)</td></tr>
+    <tr><td><b><span class="fill">Weiterer Dienst</span></b></td><td><span class="fill">z. B. Rezepte, Wiki</span></td><td><code><span class="fill">…</span></code></td>
+        <td><span class="tag gelb">In Ruhe entscheiden</span></td></tr>
+  </tbody>
+</table></div>
+
+<h3 id="k9-3">9.3 Zugang von außen – einfach erklärt</h3>
+<p><span class="fill long">Beschreiben, wie die Dienste von unterwegs erreichbar sind, z. B. über einen gemieteten Server (VPS) mit Reverse-Proxy oder Tunnel, ggf. mit zentraler Anmeldung (Single Sign-On).</span></p>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Anbieter</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Kundennummer</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Kosten</th><td><span class="fill">… € / Monat</span></td></tr>
+  <tr><th>Kundenportal</th><td><code><span class="fill">https://…</span></code> · Zugang im Passwortmanager</td></tr>
+</table></div>
+<div class="box rot">
+  <span class="title">Nicht vorschnell kündigen</span>
+  Hängt der Passwortmanager an diesem Zugang, ist er ohne ihn nicht mehr erreichbar. Erst nach dem <a href="#k11">Ausstiegsplan</a> kündigen.
+</div>
+
+<h3 id="k9-4">9.4 NAS</h3>
+<p>Das NAS ist unser zentraler <b>Datenspeicher</b>, z. B. für Fotos und Datensicherungen.</p>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Modell</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Adresse im Browser</th><td><code><span class="fill">http://…:5000</span></code></td></tr>
+  <tr><th>Zugang</th><td>Passwortmanager</td></tr>
+  <tr><th>Fotos</th><td><span class="fill">Ordner</span></td></tr>
+  <tr><th>Festplatten</th><td><span class="fill">Anzahl, Größe, RAID-Typ</span></td></tr>
+  <tr><th>Sicherung des NAS selbst</th><td><span class="fill">z. B. USB-Festplatte, Cloud</span></td></tr>
+</table></div>
+
+<div class="fotos" data-slot="nas" data-titel="NAS: Knöpfe, Anschlüsse"></div>
+
+<h3 id="k9-5">9.5 Smarthome</h3>
+<div class="tablewrap"><table class="kv">
+  <tr><th>System</th><td><span class="fill">z. B. Home Assistant</span></td></tr>
+  <tr><th>Adresse</th><td><code><span class="fill">http://…:8123</span></code></td></tr>
+  <tr><th>Was hängt daran?</th><td><span class="fill">z. B. Heizung, Licht, Steckdosen, Tore</span></td></tr>
+  <tr><th>Was passiert, wenn es aus ist?</th><td><span class="fill">…</span></td></tr>
+</table></div>
+
+<div class="fotos" data-slot="smarthome" data-titel="Smarthome: Screenshots"></div>
+
+<h3 id="k9-6">9.6 Sonstige Geräte</h3>
+<p><span class="fill long">Weitere Technik, die weg kann oder besondere Hinweise braucht.</span></p>
+
+<!-- ===================================================== 10 -->
+<h2 class="chapter" id="k10"><span class="num">10</span>Daten retten: Passwörter, Dokumente, Fotos</h2>
+<p>Unsere Daten liegen zu Hause auf Server und NAS. Solange alles läuft, ist das gut. Aber niemand pflegt die Geräte mehr.
+   Deshalb ist es sinnvoll, die wichtigsten Daten <b>innerhalb der ersten Monate</b> zusätzlich zu sichern. Gerne mit einer Hilfsperson.</p>
+<p>Du brauchst dafür: einen Laptop im Heimnetz, den <b>Cloud-Speicher</b> und als zweite Kopie eine <b>externe USB-Festplatte</b> (mindestens <span class="fill">… TB</span>).</p>
+
+<h3 id="k10-cloud">Cloud-Speicher</h3>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Anbieter</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Im Browser</th><td><code><span class="fill">https://…</span></code></td></tr>
+  <tr><th>Kontoinhaber/in</th><td><span class="fill">Name</span> · Zugang im Passwortmanager</td></tr>
+  <tr><th>Tarif und Speicherplatz</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Was wird automatisch gesichert?</th><td><span class="fill">z. B. Handy-Fotos, Dokumente-Ordner</span></td></tr>
+</table></div>
+<div class="box gelb">
+  <span class="title">Auf wessen Namen läuft das Konto?</span>
+  Manche Anbieter beenden Konten nach dem Tod des Kontoinhabers, auch bei „Lifetime“-Tarifen. Wichtige Daten deshalb
+  zusätzlich in einem Konto der Hinterbliebenen und auf einer USB-Festplatte aufbewahren. Bedingungen des Anbieters prüfen.
+</div>
+
+<div class="fotos" data-slot="cloud" data-titel="Cloud-Speicher: Screenshots"></div>
+
+<h3 id="k10-pw">10.1 Passwörter sichern</h3>
+<p>Ziel: Die Passwörter liegen danach bei einem Cloud-Anbieter (z. B. bitwarden.com), damit sie nicht mehr von unserer Technik zu Hause abhängen.</p>
+<ol class="steps">
+  <li>Mit <b>meinem</b> Konto im Passwortmanager im Browser anmelden (nach der Übernahme, <a href="#k4-4">4.4</a>).</li>
+  <li><span class="ui">Werkzeuge</span> → <span class="ui">Tresor exportieren</span>.</li>
+  <li>Dateiformat <span class="ui">.json (Passwortgeschützt)</span> wählen und ein Datei-Passwort festlegen. Aufschreiben!</li>
+  <li><span class="ui">Tresor exportieren</span> klicken, Master-Passwort eingeben. Die Datei wird heruntergeladen.</li>
+  <li>Beim neuen Anbieter ein Konto anlegen und dort <span class="ui">Werkzeuge</span> → <span class="ui">Daten importieren</span> wählen.</li>
+  <li>Prüfen, ob alles da ist. Danach die Export-Datei <b>löschen</b> und den Papierkorb leeren.</li>
+</ol>
+
+<h3 id="k10-docs">10.2 Dokumente sichern</h3>
+<ol class="steps">
+  <li>Die Dokumentenablage im Browser öffnen und anmelden.</li>
+  <li>Alle Dokumente auswählen und herunterladen (bei Paperless-ngx: <span class="ui">Dokumente</span> → <span class="ui">Alle auswählen</span> → <span class="ui">Herunterladen</span> → <span class="ui">Originale</span>).</li>
+  <li>Die ZIP-Datei in den Cloud-Speicher hochladen und zusätzlich auf die USB-Festplatte kopieren.</li>
+</ol>
+
+<h3 id="k10-photos">10.3 Fotos sichern</h3>
+<ol class="steps">
+  <li>Die USB-Festplatte am NAS oder Laptop anschließen.</li>
+  <li>In der NAS-Verwaltung den Foto-Ordner (<span class="fill">Ordnername</span>) auf die Festplatte kopieren.</li>
+  <li>Danach die Fotos zusätzlich in den Cloud-Speicher übertragen.</li>
+</ol>
+
+<h3>10.4 Weitere Daten</h3>
+<ul>
+  <li><b>Mein Laptop:</b> Ordner <span class="fill">Dokumente, Bilder …</span> sichern.</li>
+  <li><b>Mein Handy:</b> Fotos und Chats sichern.</li>
+  <li><b>Weitere Dienste:</b> <span class="fill">z. B. Rezepte, Notizen exportieren</span></li>
+</ul>
+
+<!-- ===================================================== 11 -->
+<h2 class="chapter" id="k11"><span class="num">11</span>Ausstiegsplan: Technik geordnet verkleinern</h2>
+<p>Die Technik läuft weiter, solange Strom da ist und die Rechnungen bezahlt werden. Aber Updates und Reparaturen macht niemand mehr.
+   Nach einiger Zeit ist es deshalb sinnvoll, sie <b>geordnet zu verkleinern</b>. Wenn jemand die Technik übernehmen möchte, kann sie natürlich auch weiterlaufen.</p>
+<div class="box gelb">
+  <span class="title">Die Reihenfolge ist wichtig</span>
+  Am besten mit einer Hilfsperson und Schritt für Schritt. Jeden Schritt erst abschließen und prüfen.
+</div>
+<ol class="steps">
+  <li><b>Passwörter sichern</b> und zu einem Cloud-Anbieter umziehen (<a href="#k10-pw">10.1</a>).</li>
+  <li><b>Dokumente und Fotos sichern</b> (<a href="#k10">Kapitel 10</a>). Prüfen, ob die Kopien vollständig sind.</li>
+  <li><b>Daten in den Cloud-Speicher umziehen</b>. Vorher klären, auf wessen Namen das Konto läuft.</li>
+  <li><b>Scanner umstellen</b>, falls er Dokumente an die Dokumentenablage schickt.</li>
+  <li><b>DNS-Filter aus dem Router austragen</b> (Notlösung in <a href="#k8-dns">Kapitel 8</a>). Danach den DNS-Filter ausstecken.</li>
+  <li><b>Smarthome klären:</b> Was hängt daran, und funktioniert das auch ohne?</li>
+  <li><b>Server sauber herunterfahren</b> (<a href="#k8">Kapitel 8</a>) und ausstecken.</li>
+  <li><b>Server-Anbieter (VPS) kündigen.</b></li>
+  <li><b>Domain-/E-Mail-Tarif verkleinern</b> (<a href="#k6-6">6.6</a>). Wichtige Domains und E-Mail-Adressen behalten.</li>
+  <li><b>Alte Geräte entsorgen:</b> Festplatten und SSDs vorher ausbauen und zerstören bzw. sicher löschen lassen.</li>
+</ol>
+
+<!-- ===================================================== 12 -->
+<h2 class="chapter" id="k12"><span class="num">12</span>Persönliche Geräte</h2>
+
+<h3>Mein Handy</h3>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Modell</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Entsperren</th><td>PIN auf dem Blatt „Notfall-Zugangsdaten“</td></tr>
+  <tr><th>Wichtige Apps</th><td><span class="fill">z. B. Authenticator, Passwortmanager, Banking, Cloud-Speicher</span></td></tr>
+  <tr><th>Mobilfunkvertrag</th><td><span class="fill">Anbieter, Kosten, Rufnummer</span></td></tr>
+</table></div>
+<div class="box rot">
+  <span class="title">Das Handy nicht zurücksetzen und nicht abschalten lassen</span>
+  Bitte geladen halten und den Mobilfunkvertrag erst kündigen, wenn die Passwörter gesichert sind.
+  Manche Dienste schicken Bestätigungscodes per SMS.
+</div>
+
+<div class="fotos" data-slot="handy" data-titel="Handy"></div>
+
+<h3>Mein Laptop</h3>
+<div class="tablewrap"><table class="kv">
+  <tr><th>Modell / Betriebssystem</th><td><span class="fill">…</span></td></tr>
+  <tr><th>Anmeldung</th><td>Passwort auf dem Blatt „Notfall-Zugangsdaten“</td></tr>
+  <tr><th>Festplattenverschlüsselung</th><td><span class="fill">ja/nein – Schlüssel steht auf dem Notfallblatt</span></td></tr>
+  <tr><th>Wichtige Daten</th><td><span class="fill">Ordner …</span></td></tr>
+</table></div>
+<p><b>Dienstgeräte</b> gehören dem Arbeitgeber und müssen zurückgegeben werden. Ansprechpartner: <span class="fill">Name, Telefon</span></p>
+
+<div class="fotos" data-slot="laptop" data-titel="Laptop"></div>
+
+<h3>Drucker und Scanner</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Gerät</th><th>Modell</th><th>Verwaltung im Browser</th><th>Passwort</th></tr></thead>
+  <tbody>
+    <tr><td>Drucker</td><td><span class="fill">…</span></td><td><code><span class="fill">http://192.168.178.x</span></code></td><td>Passwortmanager</td></tr>
+    <tr><td>Scanner</td><td><span class="fill">…</span></td><td><code><span class="fill">http://192.168.178.x</span></code></td><td>Passwortmanager</td></tr>
+  </tbody>
+</table></div>
+
+<div class="fotos" data-slot="drucker-scanner" data-titel="Drucker und Scanner: Bedienung"></div>
+
+<h3>Weitere Geräte</h3>
+<p><span class="fill long">z. B. Spielekonsolen, Tablets, Smart-TV, Kameras, Smartwatch …</span></p>
+
+<div class="fotos" data-slot="weitere-geraete" data-titel="Weitere Geräte"></div>
+
+<!-- ===================================================== 13 -->
+<h2 class="chapter" id="k13"><span class="num">13</span>Online-Konten und Abonnements</h2>
+<p>Viele Anbieter haben ein eigenes Verfahren für Todesfälle und verlangen eine <b>Sterbeurkunde</b>. Zugangsdaten stehen im Passwortmanager.</p>
+
+<div class="tablewrap"><table>
+  <thead><tr><th>Konto</th><th>Hinweise</th><th>Empfehlung</th></tr></thead>
+  <tbody>
+    <tr><td><b><span class="fill">Google / Apple / Microsoft</span></b></td><td><span class="fill">Handy, Kalender, Fotos</span></td>
+        <td><span class="tag gelb">In Ruhe entscheiden</span><br>Erst Daten sichern</td></tr>
+    <tr><td><b><span class="fill">Spieleplattform</span></b></td><td>Gekaufte Spiele sind laut AGB oft nicht übertragbar.</td>
+        <td><span class="tag gelb">Behalten, wenn gewünscht</span></td></tr>
+    <tr><td><b><span class="fill">Berufliches Netzwerk</span></b></td><td><span class="fill">…</span></td><td><span class="tag gruen">Löschen</span></td></tr>
+    <tr><td><b><span class="fill">Soziales Netzwerk</span></b></td><td><span class="fill">Gedenkzustand gewünscht?</span></td><td><span class="fill">…</span></td></tr>
+    <tr><td><b><span class="fill">Bezahldienst</span></b></td><td>Guthaben gehört zum Erbe.</td><td><span class="fill">…</span></td></tr>
+    <tr><td><b><span class="fill">Messenger</span></b></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td></tr>
+    <tr><td><span class="fill">weiteres Konto</span></td><td></td><td></td></tr>
+  </tbody>
+</table></div>
+
+<h3>Meine Wünsche für meine Online-Präsenz</h3>
+<p><span class="fill long">z. B. Profile löschen oder als Gedenkseite erhalten, Fotos teilen mit …</span></p>
+
+<!-- ===================================================== 14 -->
+<h2 class="chapter" id="k14"><span class="num">14</span>Finanzen und Online-Banking</h2>
+<div class="box gelb">
+  <span class="title">Erst Bank informieren, dann handeln</span>
+  Mit der Sterbeurkunde (und ggf. Erbschein oder Testament) bei der Bank melden. Nicht einfach mit fremden Zugangsdaten
+  Geld überweisen, solange die Erbschaft nicht geklärt ist. Ausnahme: Es gibt eine Vollmacht über den Tod hinaus.
+  Vollmacht vorhanden: <span class="fill">ja / nein, für …</span>
+</div>
+
+<div class="tablewrap"><table>
+  <thead><tr><th>Bank</th><th>Produkt</th><th>Hinweise</th></tr></thead>
+  <tbody>
+    <tr><td><b><span class="fill">Bank</span></b></td><td>Girokonto</td><td><span class="fill">Hier werden … abgebucht. Karten-PIN im Passwortmanager.</span></td></tr>
+    <tr><td><b><span class="fill">Bank</span></b></td><td>Tagesgeld / Depot</td><td><span class="fill">Sparpläne, …</span></td></tr>
+    <tr><td><b><span class="fill">Kartenanbieter</span></b></td><td>Kreditkarte</td><td><span class="fill">Darüber laufen u. a. …</span></td></tr>
+    <tr><td><b><span class="fill">Kreditgeber</span></b></td><td>Darlehen</td><td>Restschuld <span class="fill">…</span>, Rate <span class="fill">…</span>, Restschuldversicherung <span class="fill">ja/nein</span></td></tr>
+    <tr><td><b><span class="fill">Sonstige Anlagen</span></b></td><td><span class="fill">z. B. Krypto, Beteiligungen</span></td><td><span class="fill">…</span></td></tr>
+    <tr><td><span class="fill">Versicherungen</span></td><td></td><td><span class="fill">Policen liegen in …</span></td></tr>
+  </tbody>
+</table></div>
+
+<!-- ===================================================== 15 -->
+<h2 class="chapter" id="k15"><span class="num">15</span>Notfall-Zugangsdaten</h2>
+<section class="credsheet">
+<div class="box rot">
+  <span class="title">Dieses Blatt von Hand ausfüllen</span>
+  Bitte <b>diese Seite allein ausdrucken</b>, von Hand ausfüllen, in einen Umschlag stecken, zukleben und unterschreiben.
+  Getrennt vom Rest der Mappe aufbewahren, z. B. im Tresor oder Bankschließfach.
+  Nach jeder Passwortänderung erneuern. Passwörter nie in die digitale Fassung dieser Datei schreiben.
+</div>
+<p>Aufbewahrungsort: <span class="fill long">…</span> &nbsp; Stand: <span class="fill">TT.MM.JJJJ</span></p>
+
+<div class="tablewrap"><table>
+  <thead><tr><th>Zugang</th><th>Benutzername</th><th>Passwort / PIN</th><th>Auth-Schlüssel (2FA)</th></tr></thead>
+  <tbody>
+    <tr><td>Passwortmanager<span class="hint">Adresse</span></td><td></td><td></td><td></td></tr>
+    <tr><td>Domain-/E-Mail-Anbieter<span class="hint">Kundenbereich</span></td><td></td><td></td><td></td></tr>
+    <tr><td>Server-Anbieter (VPS)<span class="hint">Kundenportal</span></td><td></td><td></td><td></td></tr>
+    <tr><td>Server<span class="hint">Verwaltung</span></td><td></td><td></td><td></td></tr>
+    <tr><td>Router<span class="hint">Verwaltung</span></td><td></td><td></td><td>–</td></tr>
+    <tr><td>Handy<span class="hint">Entsperr-PIN</span></td><td>–</td><td></td><td>–</td></tr>
+    <tr><td>Laptop<span class="hint">Anmeldung / Verschlüsselung</span></td><td></td><td></td><td>–</td></tr>
+    <tr><td>Haupt-E-Mail<span class="hint">Webmail</span></td><td></td><td></td><td>–</td></tr>
+    <tr><td>Cloud-Speicher<span class="hint">ggf. Verschlüsselungspasswort</span></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+    <tr><td></td><td></td><td></td><td></td></tr>
+  </tbody>
+</table></div>
+<p class="small muted">Der Auth-Schlüssel ist die lange Buchstabenfolge für Zwei-Faktor-Codes (siehe <a href="#k4-6">4.6</a>).
+   Bei handschriftlichen Schlüsseln auf Verwechslungen achten: 0/O, 1/I, 8/B. Die Schlüssel enthalten meist nur A–Z und 2–7.</p>
+</section>
+
+<!-- ===================================================== ANHANG A -->
+<h2 class="chapter" id="ka"><span class="num">A</span>Anhang: Technische Details für IT-Helfer</h2>
+
+<h3>Netzwerk</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Netz</th><th>Bereich</th><th>Domain</th><th>DNS zuständig</th></tr></thead>
+  <tbody>
+    <tr><td>Heimnetz (Clients)</td><td><span class="fill">192.168.178.0/24</span>, DHCP <span class="fill">.20–.200</span></td><td><span class="fill">fritz.box</span></td><td><span class="fill">Router / DNS-Filter</span></td></tr>
+    <tr><td><span class="fill">Server-Netz</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td></tr>
+  </tbody>
+</table></div>
+<div class="tablewrap"><table>
+  <thead><tr><th>Statische IP</th><th>Gerät</th></tr></thead>
+  <tbody>
+    <tr><td><span class="fill">192.168.178.1</span></td><td>Router</td></tr>
+    <tr><td><span class="fill">192.168.178.5</span></td><td>DNS-Filter</td></tr>
+    <tr><td><span class="fill">…</span></td><td>Server</td></tr>
+    <tr><td><span class="fill">…</span></td><td>NAS</td></tr>
+    <tr><td><span class="fill">…</span></td><td>Drucker</td></tr>
+  </tbody>
+</table></div>
+
+<h3>DNS-Auflösung</h3>
+<p><span class="fill long">Beschreiben, wie Namen aufgelöst werden: Router verteilt per DHCP den DNS-Filter, Upstream-Server, Conditional Forwarding für interne Zonen …</span></p>
+<pre>Beispiel Conditional Forwarding (Pi-hole):
+true,192.168.178.0/24,192.168.178.1,fritz.box</pre>
+
+<h3>Externer Zugriff</h3>
+<p><span class="fill long">z. B. Wildcard-DNS → VPS mit Reverse-Proxy → Tunnel → interner Proxy → Ziel-VM</span></p>
+
+<h3 id="ka-dns">DNS-Einträge der Domains (Beispiel)</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Name</th><th>Typ</th><th>Wert</th><th>Bedeutung</th></tr></thead>
+  <tbody>
+    <tr><td><code>*</code></td><td>A</td><td><span class="fill">IP des VPS</span></td><td>Alle nicht eingetragenen Subdomains → Zugang von außen. Nach Abschaltung des VPS löschen.</td></tr>
+    <tr><td>(leer)</td><td>MX</td><td><span class="fill">Mailserver des Anbieters</span></td><td><b>Nicht ändern</b></td></tr>
+    <tr><td>(leer)</td><td>TXT</td><td><code>v=spf1 …</code></td><td><b>Wichtig</b> für den Mailversand (SPF)</td></tr>
+    <tr><td>_dmarc</td><td>TXT</td><td><code>v=DMARC1; p=…</code></td><td><b>Wichtig</b>. DMARC wirkt nur zusammen mit SPF und DKIM</td></tr>
+    <tr><td><span class="fill">…</span>._domainkey</td><td>TXT</td><td><code>v=DKIM1; k=rsa; p=…</code></td><td><b>Wichtig</b>, DKIM-Schlüssel</td></tr>
+  </tbody>
+</table></div>
+
+<h3>Virtuelle Maschinen / Container</h3>
+<div class="tablewrap"><table>
+  <thead><tr><th>Name</th><th>Zweck</th><th>OS</th><th>IP</th><th>Ressourcen</th><th>Backup</th></tr></thead>
+  <tbody>
+    <tr><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td></tr>
+    <tr><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td><td><span class="fill">…</span></td></tr>
+  </tbody>
+</table></div>
+
+<h3>Sicherheitskonzept</h3>
+<ul>
+  <li><span class="fill">z. B. SSH nur mit Schlüssel, keine Passwortanmeldung</span></li>
+  <li>Private Schlüssel liegen <span class="fill">wo?</span></li>
+  <li><span class="fill">Firewall, Updates, Konfigurationsverwaltung …</span></li>
+</ul>
+
+<!-- ===================================================== ANHANG B -->
+<h2 class="chapter" id="kb"><span class="num">B</span>Anhang: Pflege dieser Mappe</h2>
+<p>Gelb hinterlegte Felder (<span class="fill">so</span>) sind noch auszufüllen. Im Ausdruck erscheinen sie als gepunktete Linien
+   und können auch von Hand ergänzt werden.</p>
+
+<h3>Regelmäßig (mindestens einmal im Jahr)</h3>
+<ul class="check">
+  <li>Notfallzugriff im Passwortmanager einmal testen: Anfrage stellen lassen, ablehnen. Prüfen, ob die E-Mails ankommen.</li>
+  <li>Kosten, Vertragsnummern und Verlängerungstermine aktualisieren.</li>
+  <li>Blatt „Notfall-Zugangsdaten“ neu ausfüllen, wenn sich Passwörter geändert haben. Alten Umschlag vernichten.</li>
+  <li>Prüfen, ob die Menüwege in den Anleitungen noch stimmen.</li>
+  <li>Neuen Ausdruck erstellen. Das Stand-Datum auf dem Deckblatt setzt der Editor beim Speichern.</li>
+  <li>USV-Akku prüfen (Akkus halten meist 3–5 Jahre).</li>
+</ul>
+
+<h3>Offene Punkte</h3>
+<ul class="check">
+  <li><span class="fill">…</span></li>
+</ul>
+
+</main>
+</div>
+
+<script>
+  // Seitennavigation aus dem Inhaltsverzeichnis erzeugen (nur Bildschirm).
+  // Nummern werden dort mit " - " von der Überschrift getrennt, z. B. "4.1 - Was ist ein Passwortmanager?".
+  window.seitenleisteAufbauen = function () {
+    var src = document.querySelector('#toc > ol');
+    var dst = document.getElementById('sidenav-list');
+    if (!src || !dst) return;
+    var liste = src.cloneNode(true);
+    liste.querySelectorAll('a').forEach(function (a) {
+      var n = a.querySelector('.n');
+      if (n) {
+        n.textContent = n.textContent.trim() + ' - ';
+      } else if (a.firstChild && a.firstChild.nodeType === 3) {
+        a.firstChild.textContent = a.firstChild.textContent.replace(/^\s*(\d+(?:\.\d+)*)\s+/, '$1 - ');
+      }
+    });
+    dst.replaceChildren(liste);
+  };
+  window.seitenleisteAufbauen();
+</script>
+
+
+
+
+
+
+
+</body></html>
