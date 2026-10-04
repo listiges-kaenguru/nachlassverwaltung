@@ -7,13 +7,16 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
-### Sicherheit
+## [1.1.1] – 2026-10-05
 
-- Die Auswahl „Absatz …“ im Editor akzeptiert nur noch die vorgesehenen Formate (normaler Text, Überschrift, Unterüberschrift).
 ### Behoben
 
 - Der Editor lädt jetzt auch unter Windows zuverlässig, wenn dort Dateitypen falsch registriert sind.
 - Ein gezielt präpariertes Dokument kann beim Speichern den Server nicht mehr lahmlegen.
+
+### Sicherheit
+
+- Die Auswahl „Absatz …“ im Editor akzeptiert nur noch die vorgesehenen Formate (normaler Text, Überschrift, Unterüberschrift).
 
 ## [1.1.0] – 2026-10-04
 
@@ -39,6 +42,7 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 - Export als Einzeldatei mit eingebetteten Fotos und Druckansicht.
 - `start.sh` und `stop.sh` zum Starten und Stoppen im Hintergrund.
 
-[Unveröffentlicht]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.0...HEAD
+[Unveröffentlicht]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.1...HEAD
+[1.1.1]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/listiges-kaenguru/nachlassverwaltung/releases/tag/v1.0.0
