@@ -7,8 +7,13 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+## [1.1.0] – 2026-10-04
+
 ### Hinzugefügt
 
+- `CHANGELOG.md`, `CONTRIBUTING.md` mit Beitragsregeln und eine Vorlage für Pull Requests.
+- Automatische Prüfung (GitHub-Action) bei Pull Requests, ob `CHANGELOG.md` ergänzt wurde.
+  Ausnahme per Label `kein-changelog`.
 - Start- und Stoppskripte für Windows: `start.bat` und `stop.bat` (Doppelklick) bzw. `start.ps1` und `stop.ps1`
   (PowerShell). Sie finden Python automatisch (`py` oder `python`) und schreiben Meldungen nach `server.log`.
   **Hinweis:** Mangels Windows-PC konnte das nicht getestet werden. Rückmeldungen gern als Issue.
@@ -25,3 +30,7 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 - Speichern mit automatischer Versionssicherung in `daten/versionen/`.
 - Export als Einzeldatei mit eingebetteten Fotos und Druckansicht.
 - `start.sh` und `stop.sh` zum Starten und Stoppen im Hintergrund.
+
+[Unveröffentlicht]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.1.0...HEAD
+[1.1.0]: https://github.com/listiges-kaenguru/nachlassverwaltung/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/listiges-kaenguru/nachlassverwaltung/releases/tag/v1.0.0
