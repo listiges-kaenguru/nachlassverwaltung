@@ -7,6 +7,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+### Sicherheit
+
+- Die Auswahl „Absatz …“ im Editor akzeptiert nur noch die vorgesehenen Formate (normaler Text, Überschrift, Unterüberschrift).
+
 ## [1.1.0] – 2026-10-04
 
 ### Hinzugefügt
