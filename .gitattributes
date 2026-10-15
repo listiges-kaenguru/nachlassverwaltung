@@ -2,3 +2,12 @@
 *.sh   text eol=lf
 *.bat  text eol=crlf
 *.ps1  text eol=crlf
+
+# Release-Archive (GitHub „Source code“, git archive) enthalten nur, was zum Betrieb gebraucht wird,
+# dazu README und LICENSE. Entwicklungsdateien bleiben draußen.
+.gitattributes export-ignore
+.gitignore export-ignore
+.github export-ignore
+CLAUDE.md export-ignore
+CONTRIBUTING.md export-ignore
+CHANGELOG.md export-ignore
