@@ -7,6 +7,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ## [Unveröffentlicht]
 
+### Geändert
+
+- Die Release-Downloads enthalten nur noch, was zum Ausfüllen gebraucht wird, dazu README und LICENSE. Dateien für die Entwicklung (z. B. CHANGELOG, CONTRIBUTING, GitHub-Einstellungen) bleiben im Repository, aber nicht im Download.
+
 ## [1.1.2] – 2026-10-05
 
 ### Sicherheit
