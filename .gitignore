@@ -15,6 +15,7 @@ Digitaler-Nachlass_*.html
 
 # Editor / Betriebssystem
 .vscode/
+.claude/settings.local.json
 .idea/
 .DS_Store
 Thumbs.db
