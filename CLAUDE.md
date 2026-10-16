@@ -1,6 +1,14 @@
-# CLAUDE.md
+# Nachlassverwaltung – Hinweise für Claude
 
 Hinweise für Claude Code (und andere Mitwirkende) zur Arbeit in diesem Repository.
+
+## Orientierung
+
+- `README.md` – Einrichten, Starten, Bearbeiten, Sicherheit
+- `CHANGELOG.md` – Änderungen je Version; jede sichtbare Änderung unter `## [Unveröffentlicht]` eintragen
+- `IDEEN.md` – ToDo und Ideen; Erledigtes ins CHANGELOG
+- `CONTRIBUTING.md` – Changelog-Regeln, Release-Ablauf
+- `.github/` – Changelog-Prüfung für Pull Requests und PR-Vorlage
 
 ## Worum es geht
 
