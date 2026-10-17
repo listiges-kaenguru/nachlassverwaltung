@@ -66,10 +66,15 @@ Angaben prüfen.
 
 ## Testen
 
-Es gibt keine automatisierten Tests. Manuell prüfen:
+Automatisch (Syntax, Links, Serverstart) in der gemeinsamen Testumgebung:
 
 ```sh
-python3 -m py_compile server.py          # Syntax
+~/projects/testumgebung/pt test
+```
+
+Manuell prüfen:
+
+```sh
 NACHLASS_PORT=8485 python3 server.py     # Vordergrund, eigener Port, Strg+C beendet
 ```
 

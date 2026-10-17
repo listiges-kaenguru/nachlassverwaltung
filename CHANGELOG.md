@@ -11,6 +11,10 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 - Die Release-Downloads enthalten nur noch, was zum Ausfüllen gebraucht wird, dazu README und LICENSE. Dateien für die Entwicklung (z. B. CHANGELOG, CONTRIBUTING, GitHub-Einstellungen) bleiben im Repository, aber nicht im Download.
 
+### Intern
+
+- Automatische Prüfung (Syntax, Serverstart) in der gemeinsamen Testumgebung (`~/projects/testumgebung/pt test`).
+
 ## [1.1.2] – 2026-10-05
 
 ### Sicherheit
