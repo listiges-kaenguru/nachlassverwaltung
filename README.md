@@ -99,7 +99,7 @@ Im Vordergrund (Beenden mit `Strg+C`): `python3 server.py`. Anderer Port: `NACHL
 | `CLAUDE.md` | Hinweise zum Aufbau für Entwickler und KI-Assistenten. |
 | `CHANGELOG.md` | Änderungen je Version. |
 | `editor/` | Bearbeitungsfunktionen. Werden nur beim Bearbeiten eingeblendet und nie ins Dokument gespeichert. |
-| `tests/` | Automatische Tests für die Entwicklung (nicht im Download). |
+| `tests/` | Automatische Tests für die Entwicklung, auch für die Sicherheitsprüfungen (nicht im Download). |
 
 **Alten Stand wiederherstellen:** Server beenden, die gewünschte Datei aus `daten/versionen/` nach
 `daten/Digitaler-Nachlass.html` kopieren und den Server neu starten.
