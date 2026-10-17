@@ -24,6 +24,7 @@ schreibt. Das Dokument `daten/Digitaler-Nachlass.html` ist eine **leere Vorlage*
 | `editor/editor.js`, `editor/editor.css` | Bearbeitungsoberfläche (Vanilla-JS, kein Build, keine Abhängigkeiten). |
 | `daten/Digitaler-Nachlass.html` | Das Dokument. Eigenständiges HTML mit eigenem CSS/JS, muss auch ohne Server lesbar und druckbar sein. |
 | `start.sh`, `stop.sh` | POSIX-sh-Skripte zum Starten/Stoppen im Hintergrund (`server.pid`, `server.log`). |
+| `tests/run.sh` | Automatischer Test (Bash, startet den Server auf einer Kopie); nicht im Release-Archiv. |
 | `start.ps1`, `stop.ps1` | Gegenstücke für Windows (PowerShell 5.1 und 7). `start.bat`/`stop.bat` rufen sie per Doppelklick auf. |
 
 Ablauf:
@@ -66,10 +67,16 @@ Angaben prüfen.
 
 ## Testen
 
-Es gibt keine automatisierten Tests. Manuell prüfen:
+Automatisch in der gemeinsamen Testumgebung: Syntax, Links und `tests/run.sh` (Bash ohne Framework, startet den
+Server auf einer Kopie). Neue Tests in `tests/` ergänzen.
 
 ```sh
-python3 -m py_compile server.py          # Syntax
+~/projects/testumgebung/pt test
+```
+
+Manuell prüfen:
+
+```sh
 NACHLASS_PORT=8485 python3 server.py     # Vordergrund, eigener Port, Strg+C beendet
 ```
 
