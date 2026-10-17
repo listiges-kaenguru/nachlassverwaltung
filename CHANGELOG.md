@@ -14,6 +14,7 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 ### Intern
 
 - Automatische Prüfung (Syntax, Serverstart) in der gemeinsamen Testumgebung (`~/projects/testumgebung/pt test`).
+- Server-Test liegt jetzt im Projekt (`tests/run.sh`, Bash ohne Framework); `tests/` ist nicht im Release-Download.
 
 ## [1.1.2] – 2026-10-05
 
