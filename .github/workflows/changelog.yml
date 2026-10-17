@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'kein-changelog') }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0, fest auf den Commit gepinnt
         with:
           fetch-depth: 0
       - name: Prüfen, ob CHANGELOG.md geändert wurde

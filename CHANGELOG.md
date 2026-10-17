@@ -15,6 +15,7 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 - Automatische Prüfung (Syntax, Serverstart) in der gemeinsamen Testumgebung (`~/projects/testumgebung/pt test`).
 - Server-Test liegt jetzt im Projekt (`tests/run.sh`, Bash ohne Framework); `tests/` ist nicht im Release-Download.
+- Changelog-Prüfung: `actions/checkout` ist auf einen festen Commit gepinnt (v4.4.0) statt auf das veränderliche Etikett `v4`.
 
 ## [1.1.2] – 2026-10-05
 
