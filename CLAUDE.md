@@ -68,7 +68,10 @@ Angaben prüfen.
 ## Testen
 
 Automatisch in der gemeinsamen Testumgebung: Syntax, Links und `tests/run.sh` (Bash ohne Framework, startet den
-Server auf einer Kopie). Neue Tests in `tests/` ergänzen.
+Server auf einer Kopie). `tests/sicherheit.sh` enthält die Negativtests (Host-Prüfung, CSRF, Pfade, Fotos,
+Speichern, Export, Fehlermeldungen). Neue Tests in `tests/` ergänzen; jede neue Sicherheitsprüfung muss bei
+einer passenden Sabotage des Servers nachweislich fehlschlagen. `~/projects/testumgebung/pt abdeckung` misst
+die Coverage von `server.py`.
 
 ```sh
 ~/projects/testumgebung/pt test
