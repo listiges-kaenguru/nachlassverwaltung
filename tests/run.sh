@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # Tests der Nachlassverwaltung (Bash, ohne Framework und ohne Abhängigkeiten).
-# Laufen in der Testumgebung (~/projects/testumgebung):
-#   pt test                 mit Syntax- und Linkprüfung
-#   pt bash tests/run.sh    nur diese Tests
-#   pt abdeckung            mit Zeilen-Coverage von server.py
+# Am besten in einem Container mit den Testwerkzeugen ausführen:
+#   tests/run.sh                         diese Tests
+#   PYTHON_SERVER='python3 -m coverage run' tests/run.sh   mit Zeilen-Coverage von server.py
 # Brauchen python3 und curl. Arbeiten auf einer Kopie des Arbeitsstands (ohne ignorierte Dateien wie hochgeladene
 # Fotos und gesicherte Versionen) in einem temporären Ordner; im Repo entsteht nichts.
 set -uo pipefail
@@ -11,9 +10,9 @@ set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PORT="${TEST_PORT:-8485}"
 U="http://127.0.0.1:$PORT"
-PYTHON_SERVER="${PYTHON_SERVER:-python3 -B}"   # pt abdeckung setzt hier Python mit coverage.py
+PYTHON_SERVER="${PYTHON_SERVER:-python3 -B}"   # für Coverage: Python mit coverage.py
 for t in python3 curl git jq; do
-  command -v "$t" >/dev/null || { echo "$t fehlt – in der Testumgebung ausführen: ~/projects/testumgebung/pt test" >&2; exit 2; }
+  command -v "$t" >/dev/null || { echo "$t fehlt – in einem Container mit den Testwerkzeugen ausführen (siehe README)" >&2; exit 2; }
 done
 
 TMP="$(mktemp -d)"
