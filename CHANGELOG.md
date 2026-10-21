@@ -13,10 +13,11 @@ die Versionsnummern folgen [Semantic Versioning](https://semver.org/lang/de/).
 
 ### Intern
 
-- Automatische Prüfung (Syntax, Serverstart) in der gemeinsamen Testumgebung (`~/projects/testumgebung/pt test`).
+- Automatische Prüfung (Syntax, Serverstart) in einem Container (`tests/run.sh`).
 - Server-Test liegt jetzt im Projekt (`tests/run.sh`, Bash ohne Framework); `tests/` ist nicht im Release-Download.
 - Changelog-Prüfung: `actions/checkout` ist auf einen festen Commit gepinnt (v4.4.0) statt auf das veränderliche Etikett `v4`.
 - Negativtests in `tests/sicherheit.sh`: Host-Prüfung (DNS-Rebinding), CSRF, Pfad-Traversal inkl. symbolischer Links, Foto-Typen und -Größen, Speichern nur des Inhaltsbereichs, Export, Fehlermeldungen (83 Prüfungen, Coverage von `server.py` 96 %).
+- Hinweise für Mitwirkende (`CLAUDE.md`, CHANGELOG) allgemein formuliert, ohne lokale Pfade und eigene Werkzeuge.
 
 ## [1.1.2] – 2026-10-05
 

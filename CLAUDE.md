@@ -67,14 +67,14 @@ Angaben prüfen.
 
 ## Testen
 
-Automatisch in der gemeinsamen Testumgebung: Syntax, Links und `tests/run.sh` (Bash ohne Framework, startet den
+Automatisch (am besten in einem Container mit Python 3, `curl`, `jq`, `git`): Syntax, Links und `tests/run.sh` (Bash ohne Framework, startet den
 Server auf einer Kopie). `tests/sicherheit.sh` enthält die Negativtests (Host-Prüfung, CSRF, Pfade, Fotos,
 Speichern, Export, Fehlermeldungen). Neue Tests in `tests/` ergänzen; jede neue Sicherheitsprüfung muss bei
-einer passenden Sabotage des Servers nachweislich fehlschlagen. `~/projects/testumgebung/pt abdeckung` misst
-die Coverage von `server.py`.
+einer passenden Sabotage des Servers nachweislich fehlschlagen. Die Coverage von `server.py` misst coverage.py,
+wenn `PYTHON_SERVER` auf `python3 -m coverage run` zeigt.
 
 ```sh
-~/projects/testumgebung/pt test
+tests/run.sh
 ```
 
 Manuell prüfen:
